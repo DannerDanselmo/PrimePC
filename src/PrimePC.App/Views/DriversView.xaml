@@ -1,0 +1,276 @@
+<UserControl x:Class="PrimePC.App.Views.DriversView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,4,32,28">
+
+            <!-- Resumo e ações -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <DockPanel Margin="0,0,0,6">
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                            <Button Content="Atualizar lista" Style="{StaticResource Prime.Button}" Command="{Binding RefreshCommand}" Margin="0,0,8,0" />
+                            <Button Content="Gerenciador de Dispositivos" Style="{StaticResource Prime.Button}" Command="{Binding OpenDeviceManagerCommand}" />
+                        </StackPanel>
+                        <TextBlock Text="Resumo" Style="{StaticResource Prime.H2}" />
+                    </DockPanel>
+                    <TextBlock Text="{Binding ScanText}" Style="{StaticResource Prime.Secondary}" Margin="0,0,0,12" />
+                    <ItemsControl ItemsSource="{Binding Metrics}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
+
+                    <Border Style="{StaticResource Prime.Subtle}" Margin="0,4,0,0">
+                        <StackPanel>
+                            <DockPanel>
+                                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <Button Content="Procurar atualizações" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding SearchUpdatesCommand}" Margin="12,0,8,0" />
+                                    <Button Content="Abrir Windows Update" Style="{StaticResource Prime.Button}" Command="{Binding OpenWindowsUpdateCommand}"
+                                            ToolTip="Abre Configurações › Windows Update › Atualizações opcionais, onde as atualizações de driver podem ser instaladas" />
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="Atualizações de driver" Style="{StaticResource Prime.H3}" Margin="0,0,0,2" />
+                                    <TextBlock Text="{Binding UpdateText}" Tag="{Binding UpdateState}" Style="{StaticResource Prime.StateValue}"
+                                               FontSize="13" TextWrapping="Wrap" />
+                                </StackPanel>
+                            </DockPanel>
+                            <ProgressBar IsIndeterminate="True" Height="3" Margin="0,8,0,0"
+                                         Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibility}}" />
+
+                            <!-- Atualizações do Windows Update para instalar -->
+                            <StackPanel Visibility="{Binding HasAvailableUpdates, Converter={StaticResource BoolToVisibility}}" Margin="0,10,0,0">
+                                <ItemsControl ItemsSource="{Binding AvailableUpdates}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <CheckBox IsChecked="{Binding IsSelected}" Margin="0,3" VerticalContentAlignment="Top">
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding Title}" Foreground="{DynamicResource Prime.Text}" TextWrapping="Wrap" />
+                                                    <TextBlock Text="{Binding DetailText}" Style="{StaticResource Prime.Caption}" TextWrapping="Wrap" />
+                                                </StackPanel>
+                                            </CheckBox>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <Button Content="Baixar e instalar selecionadas" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding InstallSelectedCommand}"
+                                        HorizontalAlignment="Left" Margin="0,8,0,0" />
+                            </StackPanel>
+
+                            <!-- Andamento da instalação -->
+                            <StackPanel Visibility="{Binding InstallStatus, Converter={StaticResource NotEmptyToVisibility}}" Margin="0,10,0,0">
+                                <ProgressBar IsIndeterminate="True" Height="3" Margin="0,0,0,6"
+                                             Visibility="{Binding IsInstalling, Converter={StaticResource BoolToVisibility}}" />
+                                <TextBlock Text="{Binding InstallStatus}" Tag="{Binding InstallState}" Style="{StaticResource Prime.StateValue}" FontSize="13" TextWrapping="Wrap" />
+                            </StackPanel>
+
+                            <DockPanel Margin="0,10,0,0" Visibility="{Binding IsAdministrator, Converter={StaticResource InverseBoolToVisibility}}">
+                                <Button DockPanel.Dock="Right" Content="Reiniciar como administrador" Style="{StaticResource Prime.Button}"
+                                        Command="{Binding RestartAsAdministratorCommand}" Margin="12,0,0,0" />
+                                <TextBlock Text="Para instalar drivers pelo Windows Update e criar pontos de restauração, o PrimePC precisa estar aberto como administrador."
+                                           Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" TextWrapping="Wrap" />
+                            </DockPanel>
+
+                            <CheckBox Content="Criar um ponto de restauração do Windows antes de instalar (recomendado)" IsChecked="{Binding CreateRestorePoint}"
+                                      Margin="0,10,0,0"
+                                      ToolTip="Permite desfazer a instalação em Painel de Controle › Recuperação › Abrir a Restauração do Sistema" />
+                            <TextBlock Style="{StaticResource Prime.Caption}" TextWrapping="Wrap" Margin="0,8,0,0"
+                                       Text="A busca consulta o Windows Update (o Windows envia à Microsoft os identificadores dos dispositivos) e, para placas NVIDIA, o serviço oficial da NVIDIA (envia só o modelo da placa e a versão do Windows). Nada é baixado nem instalado sem a sua confirmação: os drivers do Windows Update são instalados pelo próprio Windows, e o da NVIDIA vem do site oficial, tem a assinatura digital conferida e abre no instalador da NVIDIA." />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <!-- Drivers de vídeo -->
+            <Border Style="{StaticResource Prime.Card}" Visibility="{Binding GpuDrivers.Count, Converter={StaticResource NotEmptyToVisibility}}">
+                <StackPanel>
+                    <TextBlock Text="Drivers de vídeo" Style="{StaticResource Prime.H2}" />
+                    <ItemsControl ItemsSource="{Binding GpuDrivers}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource Prime.Subtle}" Margin="0,0,0,8">
+                                    <StackPanel>
+                                        <DockPanel>
+                                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                                                <Button Content="Notas da versão" Style="{StaticResource Prime.Button}" Margin="0,0,8,0"
+                                                        Visibility="{Binding HasNotes, Converter={StaticResource BoolToVisibility}}"
+                                                        Command="{Binding OpenNotesCommand}" />
+                                                <Button Content="Site do fabricante" Style="{StaticResource Prime.Button}"
+                                                        Visibility="{Binding HasVendorUrl, Converter={StaticResource BoolToVisibility}}"
+                                                        Command="{Binding DataContext.OpenVendorCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding VendorUrl}" />
+                                            </StackPanel>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Name}" FontFamily="{StaticResource Prime.DisplayFont}" FontSize="15" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource Prime.Text}" />
+                                                <TextBlock Style="{StaticResource Prime.Secondary}">
+                                                    <Run Text="Instalado: " /><Run Text="{Binding Version, Mode=OneWay}" FontWeight="SemiBold" Foreground="{DynamicResource Prime.Accent}" /><Run
+                                                        Text=" · " /><Run Text="{Binding DateText, Mode=OneWay}" />
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </DockPanel>
+                                        <TextBlock Text="{Binding LatestText}" Tag="{Binding LatestState}" Style="{StaticResource Prime.StateValue}"
+                                                   FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0" />
+                                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0" Visibility="{Binding IsNewer, Converter={StaticResource BoolToVisibility}}">
+                                            <Button Content="{Binding InstallText}" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding InstallCommand}" Margin="0,0,8,0" />
+                                            <Button Content="Pausar download" Style="{StaticResource Prime.Button}" Command="{Binding CancelCommand}"
+                                                    Visibility="{Binding IsDownloading, Converter={StaticResource BoolToVisibility}}" />
+                                        </StackPanel>
+                                        <ProgressBar Height="6" Margin="0,10,0,0" Maximum="100" Value="{Binding Progress, Mode=OneWay}"
+                                                     IsIndeterminate="{Binding IsIndeterminate}"
+                                                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                                        <TextBlock Text="{Binding StatusText}" Tag="{Binding StatusState}" Style="{StaticResource Prime.StateValue}" FontSize="13"
+                                                   TextWrapping="Wrap" Margin="0,6,0,0"
+                                                   Visibility="{Binding StatusText, Converter={StaticResource NotEmptyToVisibility}}" />
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- Abas por categoria -->
+            <ListBox ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" ItemContainerStyle="{StaticResource Prime.TabPill}"
+                     Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,0,6"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Categorias de drivers">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+
+            <!-- Lista -->
+            <Border Style="{StaticResource Prime.Card}" Padding="8,10,8,6">
+                <StackPanel>
+                    <DockPanel Margin="10,0,10,10">
+                        <CheckBox DockPanel.Dock="Right" Content="Mostrar drivers que já vêm com o Windows" IsChecked="{Binding ShowInbox}" VerticalAlignment="Center" />
+                        <TextBox Width="260" HorizontalAlignment="Left" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 AutomationProperties.Name="Buscar drivers" ToolTip="Buscar por dispositivo, fabricante ou versão" />
+                        <TextBlock Style="{StaticResource Prime.Caption}" VerticalAlignment="Center" Margin="12,0,12,0">
+                            <Run Text="{Binding VisibleCount, Mode=OneWay}" /><Run Text=" itens" />
+                        </TextBlock>
+                    </DockPanel>
+                    <Grid Margin="12,0,26,6" TextElement.FontWeight="SemiBold" TextElement.FontSize="12"
+                          TextElement.Foreground="{DynamicResource Prime.TextSecondary}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="2.4*" />
+                            <ColumnDefinition Width="1.4*" />
+                            <ColumnDefinition Width="1.4*" />
+                            <ColumnDefinition Width="90" />
+                            <ColumnDefinition Width="110" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Text="Estado" />
+                        <TextBlock Grid.Column="1" Text="Dispositivo" />
+                        <TextBlock Grid.Column="2" Text="Fabricante do driver" />
+                        <TextBlock Grid.Column="3" Text="Versão" />
+                        <TextBlock Grid.Column="4" Text="Data" />
+                        <TextBlock Grid.Column="5" Text="Assinatura" />
+                    </Grid>
+                    <ListBox ItemsSource="{Binding View}" SelectedItem="{Binding SelectedRow}" Height="460"
+                             Background="Transparent" BorderThickness="0" Padding="0" HorizontalContentAlignment="Stretch"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled" VirtualizingPanel.IsVirtualizing="True"
+                             VirtualizingPanel.VirtualizationMode="Recycling" VirtualizingPanel.ScrollUnit="Pixel"
+                             AutomationProperties.Name="Lista de drivers">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem" BasedOn="{StaticResource {x:Type ListBoxItem}}">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Padding" Value="4,3" />
+                                <Setter Property="Margin" Value="0" />
+                                <Setter Property="MinHeight" Value="34" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="150" />
+                                        <ColumnDefinition Width="2.4*" />
+                                        <ColumnDefinition Width="1.4*" />
+                                        <ColumnDefinition Width="1.4*" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="110" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Style="{StaticResource Prime.StateBadge}" Tag="{Binding State}" ToolTip="{Binding Detail}">
+                                        <TextBlock Text="{Binding StatusText}" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,8,0">
+                                        <TextBlock Text="{Binding Name}" Foreground="{DynamicResource Prime.Text}" TextTrimming="CharacterEllipsis" ToolTip="{Binding Name}" />
+                                        <TextBlock Text="{Binding CategoryText}" Style="{StaticResource Prime.Caption}" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding Provider}" Style="{StaticResource Prime.Caption}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <TextBlock Grid.Column="3" Text="{Binding VersionText}" Foreground="{DynamicResource Prime.Text}" VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" Margin="0,0,8,0" ToolTip="{Binding VersionText}" />
+                                    <TextBlock Grid.Column="4" Text="{Binding DateText}" Style="{StaticResource Prime.Caption}" VerticalAlignment="Center" />
+                                    <TextBlock Grid.Column="5" Text="{Binding SignedText}" Style="{StaticResource Prime.Caption}" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <TextBlock Text="Nenhum item nesta categoria com os filtros atuais." Style="{StaticResource Prime.Secondary}" Margin="12,8"
+                               Visibility="{Binding VisibleCount, Converter={StaticResource EmptyToVisibility}}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Detalhes do item selecionado -->
+            <Border Style="{StaticResource Prime.Card}" Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+                            <Button Content="Baixar e instalar atualização" Style="{StaticResource Prime.PrimaryButton}" Margin="0,0,8,0"
+                                    Visibility="{Binding SelectedRow.HasUpdate, Converter={StaticResource BoolToVisibility}, FallbackValue=Collapsed}"
+                                    Command="{Binding InstallRowUpdateCommand}" CommandParameter="{Binding SelectedRow}" />
+                            <Button Content="Site do fabricante" Style="{StaticResource Prime.Button}" Margin="0,0,8,0"
+                                    Visibility="{Binding SelectedRow.HasVendorUrl, Converter={StaticResource BoolToVisibility}}"
+                                    Command="{Binding OpenVendorCommand}" CommandParameter="{Binding SelectedRow.VendorUrl}" />
+                            <Button Content="Gerenciador de Dispositivos" Style="{StaticResource Prime.Button}" Command="{Binding OpenDeviceManagerCommand}" />
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Text="{Binding SelectedRow.Name}" Style="{StaticResource Prime.H2}" Margin="0" />
+                            <TextBlock Text="{Binding SelectedRow.CategoryText}" Style="{StaticResource Prime.Caption}" />
+                        </StackPanel>
+                    </DockPanel>
+                    <DockPanel Margin="0,10,0,10">
+                        <Border Style="{StaticResource Prime.StateBadge}" Tag="{Binding SelectedRow.State}" Margin="0,0,10,0" VerticalAlignment="Top">
+                            <TextBlock Text="{Binding SelectedRow.StatusText}" />
+                        </Border>
+                        <TextBlock Text="{Binding SelectedRow.Detail}" Style="{StaticResource Prime.Body}" />
+                    </DockPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="190" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Text="Fabricante do driver" Style="{StaticResource Prime.Secondary}" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding SelectedRow.Provider}" Style="{StaticResource Prime.Body}" />
+                        <TextBlock Grid.Row="1" Text="Versão e data" Style="{StaticResource Prime.Secondary}" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Style="{StaticResource Prime.Body}">
+                            <Run Text="{Binding SelectedRow.VersionText, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding SelectedRow.DateText, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Grid.Row="2" Text="Assinatura digital" Style="{StaticResource Prime.Secondary}" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Style="{StaticResource Prime.Body}">
+                            <Run Text="{Binding SelectedRow.SignedText, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding SelectedRow.SignerText, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Grid.Row="3" Text="Origem" Style="{StaticResource Prime.Secondary}" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding SelectedRow.OriginText}" Style="{StaticResource Prime.Body}" />
+                        <TextBlock Grid.Row="4" Text="Classe do Windows" Style="{StaticResource Prime.Secondary}" />
+                        <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding SelectedRow.Driver.DeviceClass}" Style="{StaticResource Prime.Body}" />
+                        <TextBlock Grid.Row="5" Text="ID do dispositivo" Style="{StaticResource Prime.Secondary}" />
+                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding SelectedRow.Driver.DeviceId, Mode=OneWay}" IsReadOnly="True" Margin="0,2" />
+                        <TextBlock Grid.Row="6" Text="IDs de hardware" Style="{StaticResource Prime.Secondary}" Margin="0,4,0,0" />
+                        <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding SelectedRow.HardwareIdsText, Mode=OneWay}" IsReadOnly="True"
+                                 TextWrapping="Wrap" AcceptsReturn="True" Margin="0,4,0,0" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Motor de diagnóstico: análise de gargalos a partir de telemetria -->
+  <ItemGroup>
+    <ProjectReference Include="..\PrimePC.Sensors\PrimePC.Sensors.csproj" />
+  </ItemGroup>
+</Project>

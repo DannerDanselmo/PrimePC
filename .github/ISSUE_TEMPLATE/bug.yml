@@ -1,0 +1,58 @@
+name: Relatar um problema
+description: Algo não funciona, mostra valor errado ou trava.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por relatar! **Não cole** número de série, nome de usuário, endereço IP ou o código de acesso do painel
+        no celular. Falhas de segurança vão pelo relato privado (veja SECURITY.md), não por aqui.
+  - type: input
+    id: versao
+    attributes:
+      label: Versão do PrimePC
+      description: Aparece no fim da aba Configurações.
+      placeholder: "2.0.0"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows
+      placeholder: "Windows 11 24H2"
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Hardware envolvido
+      description: Processador, placa de vídeo, placa-mãe ou disco relacionados ao problema.
+      placeholder: "Ryzen 5 5600, RTX 3060, B550"
+  - type: dropdown
+    id: admin
+    attributes:
+      label: O PrimePC estava aberto como administrador?
+      options: ["Sim", "Não", "Não sei"]
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Como reproduzir
+      placeholder: |
+        1. Abra a aba ...
+        2. Clique em ...
+    validations:
+      required: true
+  - type: textarea
+    id: esperado
+    attributes:
+      label: O que você esperava e o que aconteceu
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log técnico (opcional)
+      description: Configurações > Abrir log técnico. Revise antes de colar e remova qualquer dado pessoal.
+      render: text

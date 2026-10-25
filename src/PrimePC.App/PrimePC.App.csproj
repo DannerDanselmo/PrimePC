@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Interface gráfica (WPF) do PrimePC -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <!-- Windows Forms só para o ícone perto do relógio (NotifyIcon); seus namespaces não são importados globalmente -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <AssemblyName>PrimePC</AssemblyName>
+    <RootNamespace>PrimePC.App</RootNamespace>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\PrimePC.ico</ApplicationIcon>
+    <!-- ThemeMode (tema Fluent do Windows 11) ainda é marcado como experimental no WPF -->
+    <NoWarn>$(NoWarn);WPF0001;WFO0003</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="QRCoder" Version="1.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Projetos WPF não importam System.IO implicitamente (conflito com System.Windows.Shapes.Path) -->
+    <Using Include="System.IO" />
+    <Using Remove="System.Windows.Forms" />
+    <Using Remove="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\PrimePC.ico" />
+    <EmbeddedResource Include="Assets\painel.html" LogicalName="PrimePC.painel.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PrimePC.Sensors\PrimePC.Sensors.csproj" />
+    <ProjectReference Include="..\PrimePC.Diagnostics\PrimePC.Diagnostics.csproj" />
+    <ProjectReference Include="..\PrimePC.Testing\PrimePC.Testing.csproj" />
+    <ProjectReference Include="..\PrimePC.Reports\PrimePC.Reports.csproj" />
+    <ProjectReference Include="..\PrimePC.GpuTesting\PrimePC.GpuTesting.csproj" />
+    <ProjectReference Include="..\PrimePC.Drivers\PrimePC.Drivers.csproj" />
+    <ProjectReference Include="..\PrimePC.Gaming\PrimePC.Gaming.csproj" />
+  </ItemGroup>
+</Project>

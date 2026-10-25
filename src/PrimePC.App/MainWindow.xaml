@@ -1,0 +1,135 @@
+<Window x:Class="PrimePC.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:PrimePC.App.ViewModels"
+        xmlns:v="clr-namespace:PrimePC.App.Views"
+        Title="PrimePC — Monitoramento e diagnóstico do PC"
+        Icon="/Assets/PrimePC.ico"
+        Width="1340" Height="880" MinWidth="1000" MinHeight="640"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Prime.WindowBackground}">
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type vm:OverviewViewModel}"><v:OverviewView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SensorsViewModel}"><v:SensorsView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:BottleneckViewModel}"><v:BottleneckView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:RamTestViewModel}"><v:RamTestView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:StabilityViewModel}"><v:StabilityView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:StorageViewModel}"><v:StorageView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DriversViewModel}"><v:DriversView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:OverlayViewModel}"><v:OverlayView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ReportsViewModel}"><v:ReportsView /></DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><v:SettingsView /></DataTemplate>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="248" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Brilhos de fundo (decorativos) -->
+        <Border Grid.ColumnSpan="2" Background="{DynamicResource Prime.Stripes}" IsHitTestVisible="False" />
+        <Border Grid.ColumnSpan="2" Background="{DynamicResource Prime.Glow1}" IsHitTestVisible="False" />
+        <Border Grid.ColumnSpan="2" Background="{DynamicResource Prime.Glow2}" IsHitTestVisible="False" />
+
+        <!-- Barra lateral -->
+        <Border Background="{DynamicResource Prime.Sidebar}" BorderBrush="{DynamicResource Prime.CardBorder}" BorderThickness="0,0,1,0">
+            <DockPanel>
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="18,24,16,26">
+                    <!-- Logo: "P" angular recortado num losango inclinado em degradê vermelho/laranja (mesma geometria do ícone) -->
+                    <Canvas Width="42" Height="40">
+                        <Path Data="M9,3 L41,3 L33,37 L1,37 Z" Fill="{DynamicResource Prime.AccentGradient}">
+                            <Path.Effect>
+                                <DropShadowEffect Color="{DynamicResource Prime.AccentColor}" BlurRadius="22" ShadowDepth="0" Opacity="0.75" />
+                            </Path.Effect>
+                        </Path>
+                        <Path Fill="{DynamicResource Prime.OnAccent}"
+                              Data="F0 M15,9 L30.5,9 L33,11.5 L31.2,19.5 L28.2,22.5 L19.3,22.5 L17.3,31 L11.2,31 Z M20.8,13.2 L26.4,13.2 L25.4,18.3 L19.6,18.3 Z" />
+                    </Canvas>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock FontFamily="{StaticResource Prime.DisplayFont}" FontSize="25" FontWeight="Bold" FontStretch="Condensed"
+                                   FontStyle="Italic" Foreground="{DynamicResource Prime.Text}">
+                            <Run Text="PRIME" /><Run Text="PC" Foreground="{DynamicResource Prime.Accent}" />
+                        </TextBlock>
+                        <TextBlock Text="MONITOR · DIAGNÓSTICO · JOGOS" Style="{StaticResource Prime.HudLabel}" FontSize="9.5" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Bottom" Margin="18,10,18,18">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                        <TextBlock Text="&#xE7EF;" Style="{StaticResource Prime.Icon}" FontSize="13" Margin="0,0,8,0"
+                                   Foreground="{DynamicResource Prime.TextSecondary}" />
+                        <TextBlock Text="{Binding AccessText}" Style="{StaticResource Prime.Caption}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <TextBlock Text="&#xE964;" Style="{StaticResource Prime.Icon}" FontSize="13" Margin="0,0,8,0"
+                                   Foreground="{DynamicResource Prime.TextSecondary}" />
+                        <TextBlock Text="{Binding DriverText}" Style="{StaticResource Prime.Caption}" />
+                    </StackPanel>
+                    <TextBlock Text="{Binding StatusText}" Style="{StaticResource Prime.Caption}" TextWrapping="Wrap" />
+                </StackPanel>
+
+                <ListBox ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage}"
+                         ItemContainerStyle="{StaticResource Prime.NavItem}"
+                         Background="Transparent" BorderThickness="0" Padding="0"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                         AutomationProperties.Name="Navegação" />
+            </DockPanel>
+        </Border>
+
+        <!-- Conteúdo -->
+        <DockPanel Grid.Column="1">
+            <StackPanel DockPanel.Dock="Top" Margin="32,22,32,14">
+                <TextBlock Text="{Binding CurrentPage.Title, Converter={StaticResource UpperCase}}" Style="{StaticResource Prime.PageTitle}" />
+                <!-- Barra inclinada sob o título, com um segundo traço curto -->
+                <Canvas Height="6" Margin="1,6,0,6" HorizontalAlignment="Left" Width="120">
+                    <Path Data="M3,0 L84,0 L81,5 L0,5 Z" Fill="{DynamicResource Prime.AccentGradient}">
+                        <Path.Effect>
+                            <DropShadowEffect Color="{DynamicResource Prime.AccentColor}" BlurRadius="12" ShadowDepth="0" Opacity="0.85" />
+                        </Path.Effect>
+                    </Path>
+                    <Path Data="M90,0 L102,0 L99,5 L87,5 Z" Fill="{DynamicResource Prime.Accent2}" />
+                </Canvas>
+                <TextBlock Text="{Binding CurrentPage.Subtitle}" Style="{StaticResource Prime.Secondary}" />
+            </StackPanel>
+
+            <!-- Alerta mais recente -->
+            <Border DockPanel.Dock="Top" Margin="32,0,32,0" Style="{StaticResource Prime.Banner}" Tag="Warning"
+                    Visibility="{Binding AlertMessage, Converter={StaticResource NotNullToVisibility}}">
+                <DockPanel>
+                    <Button DockPanel.Dock="Right" Content="&#xE711;" Style="{StaticResource Prime.IconButton}"
+                            Command="{Binding DismissAlertCommand}" ToolTip="Dispensar" VerticalAlignment="Top" />
+                    <TextBlock Text="&#xE7BA;" Style="{StaticResource Prime.Icon}" Foreground="{DynamicResource Prime.Warn}"
+                               Margin="0,0,10,0" VerticalAlignment="Top" />
+                    <TextBlock Text="{Binding AlertMessage}" Style="{StaticResource Prime.Body}" />
+                </DockPanel>
+            </Border>
+
+            <!-- Avisos permanentes (limitações, testes interrompidos) -->
+            <ItemsControl DockPanel.Dock="Top" ItemsSource="{Binding Banners}" Margin="32,0,32,0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource Prime.Banner}" Tag="{Binding Severity}">
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Content="&#xE711;" Style="{StaticResource Prime.IconButton}"
+                                        Command="{Binding DataContext.DismissBannerCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}" ToolTip="Dispensar" VerticalAlignment="Top" />
+                                <Button DockPanel.Dock="Right" Content="{Binding ActionText}" Style="{StaticResource Prime.Button}"
+                                        Margin="12,0,8,0" VerticalAlignment="Center"
+                                        Visibility="{Binding HasAction, Converter={StaticResource BoolToVisibility}}"
+                                        Command="{Binding DataContext.RunBannerActionCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                        CommandParameter="{Binding}" />
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" Foreground="{DynamicResource Prime.Text}" />
+                                    <TextBlock Text="{Binding Message}" Style="{StaticResource Prime.Secondary}" Margin="0,2,0,0" />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ContentControl Content="{Binding CurrentPage}" Focusable="False" />
+        </DockPanel>
+    </Grid>
+</Window>

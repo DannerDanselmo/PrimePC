@@ -1,0 +1,242 @@
+<UserControl x:Class="PrimePC.App.Views.StabilityView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:c="clr-namespace:PrimePC.App.Controls">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,4,32,28">
+
+            <Border Style="{StaticResource Prime.Banner}" Tag="Warning">
+                <StackPanel>
+                    <TextBlock Text="Testes de carga elevam temperatura, consumo e ruído" FontWeight="SemiBold" Foreground="{DynamicResource Prime.Text}" />
+                    <TextBlock Style="{StaticResource Prime.Secondary}" Margin="0,2,0,0"
+                               Text="Salve seu trabalho antes de começar. Você pode interromper a qualquer momento, e a carga é encerrada automaticamente se a temperatura da CPU atingir o limite configurado (quando a temperatura estiver disponível). O PrimePC não altera overclock, tensões ou BIOS." />
+                </StackPanel>
+            </Border>
+
+            <!-- Teste de CPU / combinado -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Teste de estabilidade da CPU" Style="{StaticResource Prime.H2}" />
+                    <TextBlock Style="{StaticResource Prime.Secondary}" Margin="0,0,0,12"
+                               Text="Carga controlada em todas as threads com cálculos inteiros (SHA-256) e de ponto flutuante vetorial. Cada resultado é comparado com uma referência: qualquer divergência indica erro de cálculo, sinal de instabilidade. Opcionalmente, testa a RAM ao mesmo tempo (teste combinado)." />
+                    <WrapPanel IsEnabled="{Binding IsIdle}">
+                        <StackPanel Margin="0,0,18,10">
+                            <TextBlock Text="Duração (minutos)" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <ComboBox Width="110" SelectedItem="{Binding DurationMinutes}">
+                                <ComboBox.ItemsSource>
+                                    <x:Array Type="{x:Type sys:Int32}">
+                                        <sys:Int32>1</sys:Int32><sys:Int32>5</sys:Int32><sys:Int32>10</sys:Int32><sys:Int32>15</sys:Int32>
+                                        <sys:Int32>30</sys:Int32><sys:Int32>60</sys:Int32><sys:Int32>120</sys:Int32>
+                                    </x:Array>
+                                </ComboBox.ItemsSource>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,18,10">
+                            <TextBlock Style="{StaticResource Prime.Caption}" Margin="0,0,0,3">
+                                <Run Text="Threads (máx. " /><Run Text="{Binding ProcessorCount, Mode=OneWay}" /><Run Text=")" />
+                            </TextBlock>
+                            <TextBox Width="90" Text="{Binding Threads, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,18,10">
+                            <TextBlock Text="Limite de temperatura (°C)" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <TextBox Width="90" Text="{Binding TemperatureLimit, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="A carga é encerrada imediatamente ao atingir este valor" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,18,10" VerticalAlignment="Bottom">
+                            <CheckBox Content="Incluir teste de RAM simultâneo (combinado)" IsChecked="{Binding IncludeRam}" />
+                            <CheckBox Content="Incluir a GPU (carga simultânea)" IsChecked="{Binding IncludeGpu}" Margin="0,6,0,0" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Iniciar teste" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding StartStressCommand}" Margin="0,0,10,0" />
+                        <Button Content="Interromper" Style="{StaticResource Prime.Button}" Command="{Binding CancelCommand}" />
+                    </StackPanel>
+
+                    <Border Style="{StaticResource Prime.Subtle}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <TextBlock Text="{Binding RunningLabel}" FontWeight="SemiBold" Foreground="{DynamicResource Prime.Text}"
+                                       Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" Margin="0,0,0,6" />
+                            <ProgressBar Value="{Binding Progress, Mode=OneWay}" Maximum="100" Height="5" Margin="0,0,0,8"
+                                         Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6" Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="{Binding ElapsedText}" Style="{StaticResource Prime.Secondary}" Margin="0,0,20,0" />
+                                <TextBlock Text="{Binding RateText}" Style="{StaticResource Prime.Secondary}" Margin="0,0,20,0" />
+                                <TextBlock Style="{StaticResource Prime.Secondary}"><Run Text="Erros de cálculo: " /><Run Text="{Binding ComputeErrors, Mode=OneWay}" FontWeight="SemiBold" /></TextBlock>
+                            </StackPanel>
+                            <TextBlock Text="{Binding RamProgressText}" Style="{StaticResource Prime.Secondary}" Margin="0,0,0,6"
+                                       Visibility="{Binding RamProgressText, Converter={StaticResource NotNullToVisibility}}" />
+                            <WrapPanel>
+                                <ContentControl Content="{Binding LiveTemp}" Focusable="False" />
+                                <ContentControl Content="{Binding LiveClock}" Focusable="False" />
+                                <ContentControl Content="{Binding LivePower}" Focusable="False" />
+                                <ContentControl Content="{Binding LiveLoad}" Focusable="False" />
+                            </WrapPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="16" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Temperatura da CPU (°C)" Style="{StaticResource Prime.Caption}" Margin="0,0,0,4" />
+                                    <c:LineChart Height="120" Series="{Binding TempSeries}" WindowSeconds="300" Stroke="{DynamicResource Prime.Chart2}"
+                                                 Fill="{DynamicResource Prime.Chart2Fill}" GridBrush="{DynamicResource Prime.ChartGrid}"
+                                                 TextBrush="{DynamicResource Prime.TextSecondary}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Uso total da CPU (%)" Style="{StaticResource Prime.Caption}" Margin="0,0,0,4" />
+                                    <c:LineChart Height="120" Series="{Binding LoadSeries}" WindowSeconds="300" Minimum="0" Maximum="100"
+                                                 Stroke="{DynamicResource Prime.Chart1}" Fill="{DynamicResource Prime.Chart1Fill}"
+                                                 GridBrush="{DynamicResource Prime.ChartGrid}" TextBrush="{DynamicResource Prime.TextSecondary}" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Margin="0,14,0,0" Visibility="{Binding HasStressResult, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="Último resultado" Style="{StaticResource Prime.H3}" />
+                        <TextBlock Text="{Binding StressResult}" Tag="{Binding StressState}" Style="{StaticResource Prime.StateValue}"
+                                   FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding StressDetail}" Style="{StaticResource Prime.Secondary}" Margin="0,4,0,6" />
+                        <ItemsControl ItemsSource="{Binding StressNotes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,2">
+                                        <TextBlock Text="•" Foreground="{DynamicResource Prime.TextSecondary}" Margin="0,0,8,0" />
+                                        <TextBlock Text="{Binding}" Style="{StaticResource Prime.Body}" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- GPU -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Teste de estabilidade da GPU" Style="{StaticResource Prime.H2}" />
+                    <TextBlock Style="{StaticResource Prime.Secondary}" Margin="0,0,0,12"
+                               Text="Carga de computação pesada na placa de vídeo (DirectX 12), calibrada para ~40 ms por execução. Cada execução é comparada na própria GPU com a primeira: qualquer diferença é um erro de cálculo, sinal de instabilidade (overclock/undervolt, temperatura, fonte ou driver)." />
+                    <TextBlock Text="{Binding Gpu.DeviceMessage}" Style="{StaticResource Prime.Secondary}" Foreground="{DynamicResource Prime.Warn}"
+                               Visibility="{Binding Gpu.DeviceMessage, Converter={StaticResource NotNullToVisibility}}" Margin="0,0,0,8" />
+                    <WrapPanel IsEnabled="{Binding Gpu.IsIdle}">
+                        <StackPanel Margin="0,0,18,10">
+                            <TextBlock Text="Placa de vídeo" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <ComboBox Width="300" ItemsSource="{Binding Gpu.Devices}" SelectedItem="{Binding Gpu.SelectedDevice}" DisplayMemberPath="Name" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,18,10">
+                            <TextBlock Text="Duração (minutos)" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <ComboBox Width="110" SelectedItem="{Binding Gpu.DurationMinutes}">
+                                <ComboBox.ItemsSource>
+                                    <x:Array Type="{x:Type sys:Int32}">
+                                        <sys:Int32>1</sys:Int32><sys:Int32>5</sys:Int32><sys:Int32>10</sys:Int32><sys:Int32>15</sys:Int32>
+                                        <sys:Int32>30</sys:Int32><sys:Int32>60</sys:Int32>
+                                    </x:Array>
+                                </ComboBox.ItemsSource>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,18,10">
+                            <TextBlock Text="Limite de temperatura (°C)" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <TextBox Width="90" Text="{Binding Gpu.TemperatureLimit, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="A carga é encerrada imediatamente ao atingir este valor" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Iniciar teste de GPU" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding Gpu.StartCommand}" Margin="0,0,10,0" />
+                        <Button Content="Interromper" Style="{StaticResource Prime.Button}" Command="{Binding Gpu.CancelCommand}" />
+                    </StackPanel>
+
+                    <Border Style="{StaticResource Prime.Subtle}" Margin="0,14,0,0">
+                        <StackPanel>
+                            <StackPanel Visibility="{Binding Gpu.IsRunning, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="Teste de GPU em andamento" FontWeight="SemiBold" Foreground="{DynamicResource Prime.Text}" Margin="0,0,0,6" />
+                                <ProgressBar Value="{Binding Gpu.Progress, Mode=OneWay}" Maximum="100" Height="5" Margin="0,0,0,8" />
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <TextBlock Text="{Binding Gpu.ElapsedText}" Style="{StaticResource Prime.Secondary}" Margin="0,0,20,0" />
+                                    <TextBlock Text="{Binding Gpu.RateText}" Style="{StaticResource Prime.Secondary}" Margin="0,0,20,0" />
+                                    <TextBlock Style="{StaticResource Prime.Secondary}"><Run Text="Erros de cálculo: " /><Run Text="{Binding Gpu.Errors, Mode=OneWay}" FontWeight="SemiBold" /></TextBlock>
+                                </StackPanel>
+                            </StackPanel>
+                            <WrapPanel>
+                                <ContentControl Content="{Binding Gpu.LiveTemp}" Focusable="False" />
+                                <ContentControl Content="{Binding Gpu.LiveClock}" Focusable="False" />
+                                <ContentControl Content="{Binding Gpu.LivePower}" Focusable="False" />
+                                <ContentControl Content="{Binding Gpu.LivePowerLimit}" Focusable="False" />
+                                <ContentControl Content="{Binding Gpu.LiveLoad}" Focusable="False" />
+                            </WrapPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="16" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="Temperatura da GPU (°C)" Style="{StaticResource Prime.Caption}" Margin="0,0,0,4" />
+                                    <c:LineChart Height="120" Series="{Binding Gpu.TempSeries}" WindowSeconds="300" Stroke="{DynamicResource Prime.Chart2}"
+                                                 Fill="{DynamicResource Prime.Chart2Fill}" GridBrush="{DynamicResource Prime.ChartGrid}"
+                                                 TextBrush="{DynamicResource Prime.TextSecondary}" />
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Uso da GPU (%)" Style="{StaticResource Prime.Caption}" Margin="0,0,0,4" />
+                                    <c:LineChart Height="120" Series="{Binding Gpu.LoadSeries}" WindowSeconds="300" Minimum="0" Maximum="100"
+                                                 Stroke="{DynamicResource Prime.Chart1}" Fill="{DynamicResource Prime.Chart1Fill}"
+                                                 GridBrush="{DynamicResource Prime.ChartGrid}" TextBrush="{DynamicResource Prime.TextSecondary}" />
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Margin="0,14,0,0" Visibility="{Binding Gpu.HasResult, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="Último resultado" Style="{StaticResource Prime.H3}" />
+                        <TextBlock Text="{Binding Gpu.ResultText}" Tag="{Binding Gpu.ResultState}" Style="{StaticResource Prime.StateValue}"
+                                   FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Gpu.ResultDetail}" Style="{StaticResource Prime.Secondary}" Margin="0,4,0,6" />
+                        <ItemsControl ItemsSource="{Binding Gpu.Notes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,2">
+                                        <TextBlock Text="•" Foreground="{DynamicResource Prime.TextSecondary}" Margin="0,0,8,0" />
+                                        <TextBlock Text="{Binding}" Style="{StaticResource Prime.Body}" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Benchmarks -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="Limpar histórico" Style="{StaticResource Prime.Button}" Command="{Binding ClearBenchmarksCommand}" />
+                        <TextBlock Text="Benchmarks" Style="{StaticResource Prime.H2}" />
+                    </DockPanel>
+                    <TextBlock Style="{StaticResource Prime.Secondary}" Margin="0,0,0,12"
+                               Text="Cada benchmark roda 3 vezes e mostra a mediana e a variação. As pontuações são próprias do PrimePC: servem para comparar execuções neste computador (antes/depois de uma mudança), não para comparar com outros programas. Feche aplicativos pesados para resultados consistentes." />
+                    <WrapPanel Margin="0,0,0,10">
+                        <Button Content="CPU — uma thread" Style="{StaticResource Prime.Button}" Command="{Binding RunBenchmarkCommand}" CommandParameter="cpu1" Margin="0,0,8,8" />
+                        <Button Content="CPU — todas as threads" Style="{StaticResource Prime.Button}" Command="{Binding RunBenchmarkCommand}" CommandParameter="cpuN" Margin="0,0,8,8" />
+                        <Button Content="Memória (banda e latência)" Style="{StaticResource Prime.Button}" Command="{Binding RunBenchmarkCommand}" CommandParameter="mem" Margin="0,0,8,8" />
+                        <Button Content="Executar todos" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding RunBenchmarkCommand}" CommandParameter="all" Margin="0,0,8,8" />
+                    </WrapPanel>
+                    <TextBlock Text="Nenhum benchmark executado ainda." Style="{StaticResource Prime.Secondary}"
+                               Visibility="{Binding Benchmarks.Count, Converter={StaticResource EmptyToVisibility}}" />
+                    <DataGrid ItemsSource="{Binding Benchmarks}" Style="{StaticResource Prime.DataGrid}"
+                              Visibility="{Binding Benchmarks.Count, Converter={StaticResource NotEmptyToVisibility}}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Benchmark" Binding="{Binding Name}" Width="1.6*" />
+                            <DataGridTextColumn Header="Resultado" Binding="{Binding Result}" Width="*" />
+                            <DataGridTextColumn Header="Variação" Binding="{Binding Spread}" Width="Auto" />
+                            <DataGridTextColumn Header="Comparação" Binding="{Binding Comparison}" Width="1.8*" />
+                            <DataGridTextColumn Header="Data" Binding="{Binding When}" Width="Auto" />
+                            <DataGridTextColumn Header="Condições" Binding="{Binding Conditions}" Width="2*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

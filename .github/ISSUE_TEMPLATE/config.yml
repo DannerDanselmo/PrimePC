@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Relatar uma falha de segurança
+    url: https://github.com/DannerDanselmo/PrimePC/security/advisories/new
+    about: Relate vulnerabilidades em particular, nunca numa issue pública.

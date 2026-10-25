@@ -1,0 +1,12 @@
+* text=auto
+
+# Scripts e arquivos do Windows mantêm CRLF
+*.ps1  text eol=crlf
+*.iss  text eol=crlf
+*.slnx text eol=crlf
+
+# Binários
+*.ico binary
+*.bmp binary
+*.png binary
+*.exe binary

@@ -1,0 +1,113 @@
+<!-- Paleta clara do PrimePC — mesma identidade agressiva (vermelho e laranja) sobre fundo claro. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- Marca -->
+    <Color x:Key="Prime.AccentColor">#E0102E</Color>
+    <Color x:Key="Prime.Accent2Color">#F25C05</Color>
+    <SolidColorBrush x:Key="Prime.Accent" Color="#D30E2B" />
+    <SolidColorBrush x:Key="Prime.Accent2" Color="#D94F00" />
+    <SolidColorBrush x:Key="Prime.AccentSoft" Color="#FDE7EA" />
+    <SolidColorBrush x:Key="Prime.OnAccent" Color="#FFFFFF" />
+    <LinearGradientBrush x:Key="Prime.AccentGradient" StartPoint="0,0" EndPoint="1,0.6">
+        <GradientStop Color="#E0102E" Offset="0" />
+        <GradientStop Color="#E8520A" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- Superfícies -->
+    <SolidColorBrush x:Key="Prime.WindowBackground" Color="#F4F4F6" />
+    <RadialGradientBrush x:Key="Prime.Glow1" Center="0.95,0.0" GradientOrigin="0.95,0.0" RadiusX="0.6" RadiusY="0.7">
+        <GradientStop Color="#1FE0102E" Offset="0" />
+        <GradientStop Color="#00E0102E" Offset="1" />
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="Prime.Glow2" Center="0.05,1.0" GradientOrigin="0.05,1.0" RadiusX="0.5" RadiusY="0.55">
+        <GradientStop Color="#18F25C05" Offset="0" />
+        <GradientStop Color="#00F25C05" Offset="1" />
+    </RadialGradientBrush>
+    <DrawingBrush x:Key="Prime.Stripes" TileMode="Tile" Viewport="0,0,14,14" ViewportUnits="Absolute" Viewbox="0,0,14,14" ViewboxUnits="Absolute">
+        <DrawingBrush.Drawing>
+            <GeometryDrawing Geometry="M-1,15 L15,-1">
+                <GeometryDrawing.Pen>
+                    <Pen Brush="#09000000" Thickness="1.2" />
+                </GeometryDrawing.Pen>
+            </GeometryDrawing>
+        </DrawingBrush.Drawing>
+    </DrawingBrush>
+    <SolidColorBrush x:Key="Prime.Sidebar" Color="#F2FFFFFF" />
+    <SolidColorBrush x:Key="Prime.CardBg" Color="#F7FFFFFF" />
+    <SolidColorBrush x:Key="Prime.CardBorder" Color="#E2E2E8" />
+    <LinearGradientBrush x:Key="Prime.CardBorderBrush" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#B3E0102E" Offset="0" />
+        <GradientStop Color="#33E0102E" Offset="0.10" />
+        <GradientStop Color="#E2E2E8" Offset="0.35" />
+        <GradientStop Color="#E2E2E8" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Prime.SubtleBg" Color="#F1F1F4" />
+
+    <!-- Texto -->
+    <SolidColorBrush x:Key="Prime.Text" Color="#121216" />
+    <SolidColorBrush x:Key="Prime.TextSecondary" Color="#5E5E6A" />
+
+    <!-- Estados -->
+    <SolidColorBrush x:Key="Prime.Ok" Color="#11994F" />
+    <SolidColorBrush x:Key="Prime.OkSoft" Color="#E3F6EB" />
+    <SolidColorBrush x:Key="Prime.Warn" Color="#A86C00" />
+    <SolidColorBrush x:Key="Prime.WarnSoft" Color="#FFF3D6" />
+    <SolidColorBrush x:Key="Prime.Crit" Color="#C8125A" />
+    <SolidColorBrush x:Key="Prime.CritSoft" Color="#FCE4EE" />
+    <SolidColorBrush x:Key="Prime.Muted" Color="#8A8A96" />
+    <SolidColorBrush x:Key="Prime.MutedSoft" Color="#EDEDF1" />
+
+    <!-- Gráficos -->
+    <SolidColorBrush x:Key="Prime.ChartGrid" Color="#E6E6EC" />
+    <SolidColorBrush x:Key="Prime.Chart1" Color="#E0102E" />
+    <LinearGradientBrush x:Key="Prime.Chart1Fill" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#40E0102E" Offset="0" />
+        <GradientStop Color="#00E0102E" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="Prime.Chart2" Color="#3A3A44" />
+    <LinearGradientBrush x:Key="Prime.Chart2Fill" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#303A3A44" Offset="0" />
+        <GradientStop Color="#003A3A44" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- Navegação -->
+    <SolidColorBrush x:Key="Prime.NavHover" Color="#ECECF0" />
+    <LinearGradientBrush x:Key="Prime.NavSelected" StartPoint="0,0" EndPoint="1,0">
+        <GradientStop Color="#33E0102E" Offset="0" />
+        <GradientStop Color="#00E0102E" Offset="1" />
+    </LinearGradientBrush>
+
+    <!-- Cores de destaque do tema Fluent, alinhadas à marca -->
+    <Color x:Key="SystemAccentColor">#E0102E</Color>
+    <Color x:Key="SystemAccentColorLight1">#E8384F</Color>
+    <Color x:Key="SystemAccentColorLight2">#EF6475</Color>
+    <Color x:Key="SystemAccentColorLight3">#F5949F</Color>
+    <Color x:Key="SystemAccentColorDark1">#C00D27</Color>
+    <Color x:Key="SystemAccentColorDark2">#9C0A20</Color>
+    <Color x:Key="SystemAccentColorDark3">#760718</Color>
+    <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#E0102E" />
+    <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#E6E0102E" />
+    <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#CCE0102E" />
+    <SolidColorBrush x:Key="AccentFillColorSelectedTextBackgroundBrush" Color="#C00D27" />
+    <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#9C0A20" />
+    <SolidColorBrush x:Key="AccentTextFillColorSecondaryBrush" Color="#760718" />
+    <SolidColorBrush x:Key="AccentTextFillColorTertiaryBrush" Color="#C00D27" />
+    <SolidColorBrush x:Key="TextOnAccentFillColorPrimaryBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="TextOnAccentFillColorSecondaryBrush" Color="#F2F2F2" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillChecked" Color="#E0102E" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver" Color="#E8384F" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPressed" Color="#C00D27" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeChecked" Color="#E0102E" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeCheckedPointerOver" Color="#E8384F" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeCheckedPressed" Color="#C00D27" />
+    <SolidColorBrush x:Key="CheckBoxCheckGlyphForeground" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="CheckBoxCheckGlyphForegroundPressed" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedFill" Color="#E0102E" />
+    <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedStroke" Color="#E0102E" />
+    <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedStrokePointerOver" Color="#E8384F" />
+    <SolidColorBrush x:Key="RadioButtonCheckOuterEllipseCheckedFillPointerOver" Color="#E8384F" />
+    <SolidColorBrush x:Key="RadioButtonCheckOuterEllipseCheckedFillPressed" Color="#C00D27" />
+    <SolidColorBrush x:Key="RadioButtonCheckOuterEllipseCheckedStrokePressed" Color="#C00D27" />
+    <SolidColorBrush x:Key="SliderThumbBackground" Color="#E0102E" />
+    <SolidColorBrush x:Key="SliderThumbBackgroundPointerOver" Color="#E8384F" />
+</ResourceDictionary>

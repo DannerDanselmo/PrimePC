@@ -1,0 +1,395 @@
+<UserControl x:Class="PrimePC.App.Views.OverlayView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:v="clr-namespace:PrimePC.App.Views"
+             xmlns:c="clr-namespace:PrimePC.App.Controls">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,4,32,28">
+
+            <ListBox ItemsSource="{Binding Tabs}" SelectedItem="{Binding SelectedTab}" ItemContainerStyle="{StaticResource Prime.TabPill}"
+                     Background="Transparent" BorderThickness="0" Padding="0" Margin="0,0,0,6"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Seções de jogos">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+            </ListBox>
+
+            <StackPanel Visibility="{Binding IsOverlayTab, Converter={StaticResource BoolToVisibility}}">
+            <!-- Liga/desliga, atalho, estado e prévia -->
+            <Border Style="{StaticResource Prime.Card}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Margin="0,0,24,0">
+                        <TextBlock Text="Sobreposição nos jogos" Style="{StaticResource Prime.H2}" />
+                        <TextBlock Style="{StaticResource Prime.Secondary}" TextWrapping="Wrap" Margin="0,0,0,14"
+                                   Text="Mostra FPS, tempo de quadro, uso e temperatura da CPU e da GPU e o ping num canto da tela, por cima do jogo. Os cliques passam direto para o jogo." />
+                        <WrapPanel Margin="0,0,0,12">
+                            <Button Content="{Binding ToggleText}" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding ToggleCommand}"
+                                    MinWidth="210" Margin="0,0,12,6" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                <TextBlock Text="Atalho" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <ComboBox Width="180" ItemsSource="{Binding HotkeyOptions}" SelectedItem="{Binding SelectedHotkey}" DisplayMemberPath="Label"
+                                          AutomationProperties.Name="Atalho de teclado" />
+                            </StackPanel>
+                        </WrapPanel>
+                        <TextBlock Text="{Binding Service.HotkeyStatus}" Tag="{Binding Service.HotkeyState}" Style="{StaticResource Prime.StateValue}"
+                                   FontSize="13" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Service.FrameStatus}" Tag="{Binding Service.FrameStatusState}" Style="{StaticResource Prime.StateValue}"
+                                   FontSize="13" TextWrapping="Wrap" Margin="0,6,0,0" />
+                        <TextBlock Text="{Binding Service.PingStatus}" Style="{StaticResource Prime.Secondary}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                        <DockPanel Margin="0,12,0,0" Visibility="{Binding IsAdministrator, Converter={StaticResource InverseBoolToVisibility}}">
+                            <Button DockPanel.Dock="Right" Content="Reiniciar como administrador" Style="{StaticResource Prime.Button}"
+                                    Command="{Binding RestartAsAdministratorCommand}" Margin="12,0,0,0" />
+                            <TextBlock Text="Para medir FPS e tempo de quadro:" Style="{StaticResource Prime.Secondary}"
+                                       TextWrapping="Wrap" VerticalAlignment="Center" />
+                        </DockPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1">
+                        <Border Width="360" Height="220" CornerRadius="12" ClipToBounds="True">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#2A0B12" Offset="0" />
+                                    <GradientStop Color="#3A1A0C" Offset="0.55" />
+                                    <GradientStop Color="#0C0C10" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <v:OverlayPanel DataContext="{Binding Display}" Margin="10"
+                                            HorizontalAlignment="{Binding DataContext.PreviewHorizontal, RelativeSource={RelativeSource AncestorType=v:OverlayView}}"
+                                            VerticalAlignment="{Binding DataContext.PreviewVertical, RelativeSource={RelativeSource AncestorType=v:OverlayView}}" />
+                        </Border>
+                        <TextBlock Text="Prévia ao vivo" Style="{StaticResource Prime.Caption}" HorizontalAlignment="Center" Margin="0,6,0,0" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- O que mostrar -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="O que mostrar" Style="{StaticResource Prime.H2}" />
+                    <WrapPanel>
+                        <WrapPanel.Resources>
+                            <Style TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+                                <Setter Property="Width" Value="300" />
+                                <Setter Property="Margin" Value="0,0,12,8" />
+                            </Style>
+                        </WrapPanel.Resources>
+                        <CheckBox Content="FPS (quadros por segundo)" IsChecked="{Binding ShowFps}" />
+                        <CheckBox Content="Tempo de quadro (ms)" IsChecked="{Binding ShowFrameTime}" />
+                        <CheckBox Content="1% low (FPS nos piores momentos)" IsChecked="{Binding ShowLow1}" />
+                        <CheckBox Content="Gráfico do tempo de quadro (mostra travadas)" IsChecked="{Binding ShowGraph}" />
+                        <CheckBox Content="Uso da CPU" IsChecked="{Binding ShowCpuLoad}" />
+                        <CheckBox Content="Temperatura da CPU" IsChecked="{Binding ShowCpuTemp}" />
+                        <CheckBox Content="Uso da GPU" IsChecked="{Binding ShowGpuLoad}" />
+                        <CheckBox Content="Temperatura da GPU" IsChecked="{Binding ShowGpuTemp}" />
+                        <CheckBox Content="Ping" IsChecked="{Binding ShowPing}" />
+                        <CheckBox Content="Potência da CPU (W)" IsChecked="{Binding ShowCpuPower}" />
+                        <CheckBox Content="Clock da GPU (MHz)" IsChecked="{Binding ShowGpuClock}" />
+                        <CheckBox Content="Potência da GPU (W)" IsChecked="{Binding ShowGpuPower}" />
+                        <CheckBox Content="VRAM usada" IsChecked="{Binding ShowVram}" />
+                        <CheckBox Content="Uso da RAM" IsChecked="{Binding ShowRam}" />
+                        <CheckBox Content="Hora" IsChecked="{Binding ShowClock}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Aparência e comportamento -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Aparência e comportamento" Style="{StaticResource Prime.H2}" />
+                    <Grid Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="Posição" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" />
+                        <ComboBox Grid.Column="1" Width="240" HorizontalAlignment="Left" Margin="0,0,0,8" ItemsSource="{Binding CornerOptions}"
+                                  SelectedItem="{Binding SelectedCorner}" DisplayMemberPath="Label" AutomationProperties.Name="Posição" />
+                        <TextBlock Grid.Row="1" Text="Tamanho" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" />
+                        <ComboBox Grid.Row="1" Grid.Column="1" Width="240" HorizontalAlignment="Left" Margin="0,0,0,8" ItemsSource="{Binding SizeOptions}"
+                                  SelectedItem="{Binding SelectedSize}" DisplayMemberPath="Label" AutomationProperties.Name="Tamanho" />
+                        <TextBlock Grid.Row="2" Text="Fundo" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" />
+                        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,8">
+                            <Slider Width="240" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                    Value="{Binding BackgroundOpacity, Delay=250}" AutomationProperties.Name="Opacidade do fundo" />
+                            <TextBlock Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" Margin="10,0,0,0">
+                                <Run Text="{Binding BackgroundOpacity, Mode=OneWay}" /><Run Text=" %" />
+                            </TextBlock>
+                        </StackPanel>
+                        <TextBlock Grid.Row="3" Text="Referência do ping (REDE)" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" />
+                        <TextBox Grid.Row="3" Grid.Column="1" Width="240" HorizontalAlignment="Left" Text="{Binding ReferenceHost, UpdateSourceTrigger=LostFocus}"
+                                 ToolTip="Endereço usado quando o servidor do jogo não responde ao ping (padrão: 1.1.1.1)" AutomationProperties.Name="Referência do ping" />
+                    </Grid>
+                    <CheckBox Content="Mostrar só quando um jogo estiver em primeiro plano" IsChecked="{Binding OnlyInGames}" Margin="0,0,0,6" />
+                    <CheckBox Content="Esconder em capturas de tela, gravações e transmissões" IsChecked="{Binding HideFromCapture}" />
+                    <TextBlock Style="{StaticResource Prime.Caption}" TextWrapping="Wrap" Margin="28,2,0,0" Foreground="{DynamicResource Prime.Warn}"
+                               Text="Deixe desmarcado em jogos com anti-cheat: esconder janelas das capturas é uma técnica usada por cheats para fugir das capturas de tela do anti-cheat, então pode parecer suspeito." />
+                </StackPanel>
+            </Border>
+
+            <!-- Perfis por jogo -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Perfis por jogo" Style="{StaticResource Prime.H2}" />
+                    <TextBlock Style="{StaticResource Prime.Secondary}" TextWrapping="Wrap" Margin="0,0,0,10"
+                               Text="Cada jogo pode ter seu próprio visual (itens, canto, tamanho e fundo). Com &quot;ligar sozinha&quot;, a sobreposição aparece quando o jogo abre, mesmo com a opção geral desligada." />
+                    <DockPanel Margin="0,0,0,10">
+                        <Button DockPanel.Dock="Right" Content="Salvar visual atual para este jogo" Style="{StaticResource Prime.PrimaryButton}"
+                                Command="{Binding SaveProfileCommand}" IsEnabled="{Binding CanSaveProfile}" Margin="12,0,0,0" />
+                        <TextBlock Text="{Binding ProfileGameText}" Style="{StaticResource Prime.Body}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                    </DockPanel>
+                    <ItemsControl ItemsSource="{Binding Profiles}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource Prime.Subtle}" Margin="0,0,0,6">
+                                    <DockPanel>
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                                            <CheckBox Content="Ligar sozinha" IsChecked="{Binding AutoShow}" Margin="0,0,12,0" />
+                                            <Button Content="Remover" Style="{StaticResource Prime.Button}" Command="{Binding RemoveCommand}" />
+                                        </StackPanel>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Game}" FontFamily="{StaticResource Prime.DisplayFont}" FontSize="15" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource Prime.Text}" />
+                                            <TextBlock Text="{Binding Summary}" Style="{StaticResource Prime.Caption}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Text="Nenhum perfil salvo." Style="{StaticResource Prime.Caption}"
+                               Visibility="{Binding Profiles.Count, Converter={StaticResource EmptyToVisibility}}" />
+                </StackPanel>
+            </Border>
+
+            <!-- Como funciona -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Como funciona" Style="{StaticResource Prime.H2}" />
+                    <TextBlock Style="{StaticResource Prime.Body}" TextWrapping="Wrap" LineHeight="21">
+                        <Run FontWeight="SemiBold" Text="FPS e tempo de quadro: " /><Run Text="medidos pelos avisos que o próprio Windows publica a cada quadro (o mesmo método do PresentMon, da Intel). Nada é injetado no jogo, por isso não interfere com anti-cheat." />
+                        <LineBreak />
+                        <Run FontWeight="SemiBold" Text="1% low: " /><Run Text="o FPS médio do 1% de quadros mais lentos dos últimos 10 segundos. Mostra as travadas que a média esconde." />
+                        <LineBreak />
+                        <Run FontWeight="SemiBold" Text="PING: " /><Run Text="ping até o servidor para o qual o jogo está enviando pacotes. Muitos servidores não respondem a ping; nesse caso aparece REDE, a latência até um endereço de referência na internet. Ela indica a qualidade da sua conexão, mas não é o ping exato do jogo." />
+                        <LineBreak />
+                        <Run FontWeight="SemiBold" Text="Onde aparece: " /><Run Text="a sobreposição é uma janela por cima do jogo. Funciona em modo janela e em tela cheia sem bordas (o padrão da maioria dos jogos atuais); em tela cheia exclusiva ela pode não aparecer. O PrimePC precisa ficar aberto (pode ficar minimizado)." />
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+            </StackPanel>
+
+            <!-- ================= Benchmark ================= -->
+            <StackPanel Visibility="{Binding IsBenchmarkTab, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel DataContext="{Binding Benchmark}">
+                    <Border Style="{StaticResource Prime.Card}">
+                        <StackPanel>
+                            <TextBlock Text="Benchmark de jogo" Style="{StaticResource Prime.H2}" />
+                            <TextBlock Style="{StaticResource Prime.Secondary}" TextWrapping="Wrap" Margin="0,0,0,12"
+                                       Text="Mede cada quadro do jogo em primeiro plano por um tempo fixo e calcula FPS médio, 1% low, 0,1% low e travadas. Use sempre a mesma cena para comparar antes e depois de trocar driver, configuração ou peça. Dentro do jogo, use o atalho; pelo botão, você tem 5 segundos para voltar ao jogo." />
+                            <WrapPanel>
+                                <Button Content="Iniciar benchmark" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding StartCommand}" MinWidth="170" Margin="0,0,10,8" />
+                                <Button Content="Parar" Style="{StaticResource Prime.Button}" Command="{Binding StopCommand}" Margin="0,0,24,8" />
+                                <StackPanel Orientation="Horizontal" Margin="0,0,24,8">
+                                    <TextBlock Text="Duração" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <ComboBox Width="150" ItemsSource="{Binding DurationOptions}" SelectedItem="{Binding SelectedDuration}" DisplayMemberPath="Label"
+                                              AutomationProperties.Name="Duração do benchmark" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                    <TextBlock Text="Atalho" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <ComboBox Width="180" ItemsSource="{Binding HotkeyOptions}" SelectedItem="{Binding SelectedHotkey}" DisplayMemberPath="Label"
+                                              AutomationProperties.Name="Atalho do benchmark" />
+                                </StackPanel>
+                            </WrapPanel>
+                            <TextBlock Text="{Binding Service.HotkeyStatus}" Style="{StaticResource Prime.Caption}" />
+                            <ProgressBar Height="6" Maximum="100" Value="{Binding Service.Progress, Mode=OneWay}" Margin="0,10,0,0"
+                                         Visibility="{Binding Service.IsRunning, Converter={StaticResource BoolToVisibility}}" />
+                            <TextBlock Text="{Binding Service.StatusText}" Style="{StaticResource Prime.Body}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Prime.Card}" Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Prime.Caption}">
+                                <Run Text="{Binding SelectedResult.Game, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding SelectedResult.DateText, Mode=OneWay}" />
+                            </TextBlock>
+                            <WrapPanel Margin="0,6,0,0">
+                                <WrapPanel.Resources>
+                                    <Style x:Key="Big" TargetType="TextBlock">
+                                        <Setter Property="FontSize" Value="26" />
+                                        <Setter Property="FontWeight" Value="SemiBold" />
+                                        <Setter Property="FontFamily" Value="{StaticResource Prime.DisplayFont}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource Prime.Text}" />
+                                    </Style>
+                                </WrapPanel.Resources>
+                                <StackPanel Margin="0,0,34,6">
+                                    <TextBlock Text="FPS médio" Style="{StaticResource Prime.Caption}" />
+                                    <TextBlock Text="{Binding SelectedResult.AvgText}" Style="{StaticResource Big}" Foreground="{DynamicResource Prime.Accent}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,34,6" ToolTip="FPS médio do 1% de quadros mais lentos">
+                                    <TextBlock Text="1% low" Style="{StaticResource Prime.Caption}" />
+                                    <TextBlock Text="{Binding SelectedResult.Low1Text}" Style="{StaticResource Big}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,34,6" ToolTip="FPS médio do 0,1% de quadros mais lentos (exige pelo menos 1000 quadros)">
+                                    <TextBlock Text="0,1% low" Style="{StaticResource Prime.Caption}" />
+                                    <TextBlock Text="{Binding SelectedResult.Low01Text}" Style="{StaticResource Big}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,34,6">
+                                    <TextBlock Text="Travadas" Style="{StaticResource Prime.Caption}" />
+                                    <TextBlock Text="{Binding SelectedResult.StuttersText}" Style="{StaticResource Big}" />
+                                </StackPanel>
+                                <StackPanel Margin="0,0,34,6">
+                                    <TextBlock Text="Pior quadro" Style="{StaticResource Prime.Caption}" />
+                                    <TextBlock Text="{Binding SelectedResult.WorstText}" Style="{StaticResource Big}" />
+                                </StackPanel>
+                            </WrapPanel>
+                            <TextBlock Text="{Binding SelectedResult.DeltaText}" Tag="{Binding SelectedResult.DeltaState}" Style="{StaticResource Prime.StateValue}" FontSize="13" />
+                            <TextBlock Text="Tempo de cada quadro (picos = travadas; linha tracejada = 16,7 ms, 60 FPS)" Style="{StaticResource Prime.Caption}" Margin="0,10,0,4" />
+                            <c:FrameTimeGraph Values="{Binding SelectedResult.Graph}" Height="90" />
+                            <TextBlock Text="{Binding SelectedResult.Detail}" Style="{StaticResource Prime.Caption}" TextWrapping="Wrap" Margin="0,8,0,0" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Prime.Card}">
+                        <StackPanel>
+                            <TextBlock Text="Histórico" Style="{StaticResource Prime.H2}" />
+                            <ListBox ItemsSource="{Binding Results}" SelectedItem="{Binding SelectedResult}" MaxHeight="420"
+                                     Background="Transparent" BorderThickness="0" HorizontalContentAlignment="Stretch"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled" AutomationProperties.Name="Histórico de benchmarks">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <DockPanel Margin="0,2">
+                                            <Button DockPanel.Dock="Right" Content="&#xE74D;" Style="{StaticResource Prime.IconButton}" ToolTip="Apagar"
+                                                    Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" CommandParameter="{Binding}" />
+                                            <TextBlock DockPanel.Dock="Right" Text="{Binding DeltaText}" Tag="{Binding DeltaState}" Style="{StaticResource Prime.StateValue}"
+                                                       FontSize="12" VerticalAlignment="Center" Margin="12,0" />
+                                            <StackPanel>
+                                                <TextBlock Foreground="{DynamicResource Prime.Text}" TextTrimming="CharacterEllipsis">
+                                                    <Run Text="{Binding Game, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" · " /><Run Text="{Binding Summary, Mode=OneWay}" />
+                                                </TextBlock>
+                                                <TextBlock Text="{Binding DateText}" Style="{StaticResource Prime.Caption}" />
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <TextBlock Text="Nenhum benchmark ainda." Style="{StaticResource Prime.Caption}"
+                                       Visibility="{Binding Results.Count, Converter={StaticResource EmptyToVisibility}}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- ================= Sessões de jogo ================= -->
+            <StackPanel Visibility="{Binding IsSessionsTab, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel DataContext="{Binding GameSessions}">
+                    <Border Style="{StaticResource Prime.Card}">
+                        <StackPanel>
+                            <TextBlock Text="Sessões de jogo" Style="{StaticResource Prime.H2}" />
+                            <TextBlock Style="{StaticResource Prime.Secondary}" TextWrapping="Wrap" Margin="0,0,0,10"
+                                       Text="O PrimePC registra sozinho cada sessão de jogo de 2 minutos ou mais: duração, FPS médio e as temperaturas máxima e média da CPU e da GPU. Com o tempo, dá para ver se o PC está esquentando mais no mesmo jogo (poeira, pasta térmica)." />
+                            <CheckBox Content="Registrar as sessões de jogo automaticamente" IsChecked="{Binding RecordSessions}" Margin="0,0,0,6" />
+                            <TextBlock Text="{Binding CurrentText}" Style="{StaticResource Prime.Caption}" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Prime.Card}">
+                        <StackPanel>
+                            <DockPanel Margin="0,0,0,8">
+                                <ComboBox DockPanel.Dock="Right" Width="260" ItemsSource="{Binding Games}" SelectedItem="{Binding SelectedGame}" AutomationProperties.Name="Jogo" />
+                                <TextBlock Text="Temperatura máxima por sessão" Style="{StaticResource Prime.H2}" Margin="0" VerticalAlignment="Center" />
+                            </DockPanel>
+                            <TextBlock Text="{Binding TrendText}" Tag="{Binding TrendState}" Style="{StaticResource Prime.StateValue}" FontSize="13" TextWrapping="Wrap" Margin="0,0,0,8" />
+                            <TextBlock Style="{StaticResource Prime.Caption}" Margin="0,0,0,4">
+                                <Run Text="━ GPU" Foreground="{DynamicResource Prime.Chart1}" /><Run Text="     " /><Run Text="━ CPU" Foreground="{DynamicResource Prime.Chart2}" /><Run Text="   (°C)" />
+                            </TextBlock>
+                            <c:LineChart Height="160" Series="{Binding GpuSeries}" Series2="{Binding CpuSeries}" Unit="°C"
+                                         Stroke="{DynamicResource Prime.Chart1}" Stroke2="{DynamicResource Prime.Chart2}"
+                                         GridBrush="{DynamicResource Prime.ChartGrid}" TextBrush="{DynamicResource Prime.TextSecondary}" Margin="0,0,0,12" />
+                            <ItemsControl ItemsSource="{Binding Rows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Style="{StaticResource Prime.Subtle}" Margin="0,0,0,6">
+                                            <DockPanel>
+                                                <Button DockPanel.Dock="Right" Content="&#xE74D;" Style="{StaticResource Prime.IconButton}" ToolTip="Apagar sessão" VerticalAlignment="Center"
+                                                        Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" />
+                                                <StackPanel>
+                                                    <TextBlock Foreground="{DynamicResource Prime.Text}">
+                                                        <Run Text="{Binding DateText, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" · " /><Run Text="{Binding DurationText, Mode=OneWay}" /><Run
+                                                            Text=" · " /><Run Text="{Binding FpsText, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                    <TextBlock Style="{StaticResource Prime.Caption}">
+                                                        <Run Text="CPU " /><Run Text="{Binding CpuText, Mode=OneWay}" /><Run Text="     GPU " /><Run Text="{Binding GpuText, Mode=OneWay}" />
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </DockPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Text="Nenhuma sessão registrada ainda. Jogue pelo menos 2 minutos com o PrimePC aberto (como administrador)."
+                                       Style="{StaticResource Prime.Caption}" TextWrapping="Wrap"
+                                       Visibility="{Binding Rows.Count, Converter={StaticResource EmptyToVisibility}}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- ================= Celular ================= -->
+            <StackPanel Visibility="{Binding IsPhoneTab, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel DataContext="{Binding Phone}">
+                    <Border Style="{StaticResource Prime.Card}">
+                        <StackPanel>
+                            <TextBlock Text="Painel no celular" Style="{StaticResource Prime.H2}" />
+                            <TextBlock Style="{StaticResource Prime.Secondary}" TextWrapping="Wrap" Margin="0,0,0,12"
+                                       Text="Veja FPS, temperaturas, uso da CPU e da GPU, VRAM, RAM e ping no navegador do celular enquanto joga em tela cheia. Funciona na mesma rede (o Wi-Fi da sua casa) e é só leitura: ninguém controla o PC pelo painel." />
+                            <WrapPanel Margin="0,0,0,8">
+                                <CheckBox Content="Ligar o painel no celular" IsChecked="{Binding Enabled}" VerticalAlignment="Center" Margin="0,0,24,6" />
+                                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                                    <TextBlock Text="Porta" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                    <TextBox Width="90" Text="{Binding Port, UpdateSourceTrigger=LostFocus}" AutomationProperties.Name="Porta" />
+                                </StackPanel>
+                            </WrapPanel>
+                            <TextBlock Text="{Binding Server.StatusText}" Tag="{Binding Server.StatusState}" Style="{StaticResource Prime.StateValue}" FontSize="13" TextWrapping="Wrap" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource Prime.Card}" Visibility="{Binding Server.IsRunning, Converter={StaticResource BoolToVisibility}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Background="White" CornerRadius="10" Padding="8" Margin="0,0,24,0" VerticalAlignment="Top"
+                                    Visibility="{Binding HasQr, Converter={StaticResource BoolToVisibility}}">
+                                <Image Source="{Binding QrCode}" Width="200" Height="200" RenderOptions.BitmapScalingMode="NearestNeighbor" />
+                            </Border>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="Aponte a câmera do celular para o QR code" Style="{StaticResource Prime.H3}" />
+                                <TextBlock Text="ou digite o endereço no navegador do celular:" Style="{StaticResource Prime.Secondary}" Margin="0,0,0,6" />
+                                <TextBox Text="{Binding Server.Address, Mode=OneWay}" IsReadOnly="True" FontSize="14" AutomationProperties.Name="Endereço do painel" />
+                                <WrapPanel Margin="0,10,0,0">
+                                    <Button Content="Copiar endereço" Style="{StaticResource Prime.Button}" Command="{Binding CopyCommand}" Margin="0,0,8,6" />
+                                    <Button Content="Abrir neste PC" Style="{StaticResource Prime.Button}" Command="{Binding OpenCommand}" Margin="0,0,8,6" />
+                                    <Button Content="Gerar novo código" Style="{StaticResource Prime.Button}" Command="{Binding NewCodeCommand}" Margin="0,0,8,6" />
+                                </WrapPanel>
+                                <TextBlock Text="{Binding Server.LastAccess}" Style="{StaticResource Prime.Caption}" Margin="0,6,0,10" />
+                                <TextBlock Style="{StaticResource Prime.Caption}" TextWrapping="Wrap"
+                                           Text="O endereço inclui um código de acesso: quem não tem o código não vê nada. Se o celular não abrir a página, verifique se ele está no mesmo Wi-Fi e se o Firewall do Windows permite o PrimePC em redes privadas (o Windows pergunta na primeira vez que o painel é ligado)." />
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

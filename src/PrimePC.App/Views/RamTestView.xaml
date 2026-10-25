@@ -1,0 +1,217 @@
+<UserControl x:Class="PrimePC.App.Views.RamTestView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,4,32,28">
+
+            <Border Style="{StaticResource Prime.Banner}" Tag="Warning">
+                <StackPanel>
+                    <TextBlock Text="Antes de começar" FontWeight="SemiBold" Foreground="{DynamicResource Prime.Text}" />
+                    <TextBlock Style="{StaticResource Prime.Secondary}" Margin="0,2,0,0"
+                               Text="Salve seu trabalho. Este teste roda dentro do Windows: o sistema e os programas abertos ocupam parte da RAM, que não pode ser testada daqui. Um teste sem erros reduz a suspeita de defeito, mas não garante que a memória esteja perfeita. Para alcançar mais memória, use também o teste inicializável." />
+                </StackPanel>
+            </Border>
+
+            <!-- Configuração -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel IsEnabled="{Binding IsIdle}">
+                    <TextBlock Text="Configuração do teste" Style="{StaticResource Prime.H2}" />
+                    <TextBlock Text="{Binding MemoryText}" Style="{StaticResource Prime.Secondary}" Margin="0,0,0,12" />
+
+                    <TextBlock Text="Modo" Style="{StaticResource Prime.H3}" />
+                    <StackPanel Margin="0,0,0,10">
+                        <RadioButton GroupName="Mode" IsChecked="{Binding IsQuick}" Margin="0,2">
+                            <TextBlock><Run Text="Rápido" FontWeight="SemiBold" /><Run Text=" — 1 passagem com 6 padrões (zeros, uns, xadrez, endereço próprio, aleatório)." /></TextBlock>
+                        </RadioButton>
+                        <RadioButton GroupName="Mode" IsChecked="{Binding IsFull}" Margin="0,2">
+                            <TextBlock><Run Text="Completo" FontWeight="SemiBold" /><Run Text=" — várias passagens com 25 padrões (inclui bits móveis e inversões aleatórias)." /></TextBlock>
+                        </RadioButton>
+                        <RadioButton GroupName="Mode" IsChecked="{Binding IsTimed}" Margin="0,2">
+                            <TextBlock><Run Text="Por duração" FontWeight="SemiBold" /><Run Text=" — repete passagens completas até o tempo escolhido." /></TextBlock>
+                        </RadioButton>
+                    </StackPanel>
+
+                    <TextBlock Style="{StaticResource Prime.H3}">
+                        <Run Text="Quantidade de memória: " /><Run Text="{Binding AmountText, Mode=OneWay}" Foreground="{DynamicResource Prime.Accent}" />
+                    </TextBlock>
+                    <DockPanel Margin="0,0,0,12">
+                        <Button DockPanel.Dock="Right" Content="Usar o máximo seguro" Style="{StaticResource Prime.Button}" Margin="12,0,0,0"
+                                Command="{Binding UseMaximumCommand}" />
+                        <Slider Minimum="{Binding MinMb}" Maximum="{Binding MaxMb}" Value="{Binding AmountMb}" TickFrequency="256"
+                                IsSnapToTickEnabled="True" SmallChange="256" LargeChange="1024" VerticalAlignment="Center"
+                                AutomationProperties.Name="Quantidade de memória a testar" />
+                    </DockPanel>
+
+                    <WrapPanel>
+                        <StackPanel Margin="0,0,20,8" Visibility="{Binding IsFull, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="Passagens" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <ComboBox Width="90" SelectedItem="{Binding Passes}">
+                                <ComboBox.ItemsSource>
+                                    <x:Array Type="{x:Type sys:Int32}" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                        <sys:Int32>1</sys:Int32><sys:Int32>2</sys:Int32><sys:Int32>3</sys:Int32><sys:Int32>4</sys:Int32>
+                                        <sys:Int32>6</sys:Int32><sys:Int32>8</sys:Int32><sys:Int32>10</sys:Int32>
+                                    </x:Array>
+                                </ComboBox.ItemsSource>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,20,8" Visibility="{Binding IsTimed, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="Duração (minutos)" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <ComboBox Width="110" SelectedItem="{Binding DurationMinutes}">
+                                <ComboBox.ItemsSource>
+                                    <x:Array Type="{x:Type sys:Int32}" xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                                        <sys:Int32>5</sys:Int32><sys:Int32>15</sys:Int32><sys:Int32>30</sys:Int32><sys:Int32>60</sys:Int32>
+                                        <sys:Int32>120</sys:Int32><sys:Int32>240</sys:Int32><sys:Int32>480</sys:Int32>
+                                    </x:Array>
+                                </ComboBox.ItemsSource>
+                            </ComboBox>
+                        </StackPanel>
+                        <StackPanel Margin="0,0,20,8">
+                            <TextBlock Style="{StaticResource Prime.Caption}" Margin="0,0,0,3">
+                                <Run Text="Threads de teste (máx. " /><Run Text="{Binding ProcessorCount, Mode=OneWay}" /><Run Text=")" />
+                            </TextBlock>
+                            <TextBox Width="90" Text="{Binding Threads, UpdateSourceTrigger=PropertyChanged}" />
+                        </StackPanel>
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Execução -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Iniciar teste" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding StartCommand}" Margin="0,0,10,0" />
+                        <Button Content="Cancelar" Style="{StaticResource Prime.Button}" Command="{Binding CancelCommand}" Margin="0,0,10,0" />
+                        <Button Content="Teste inicializável (Windows)…" Style="{StaticResource Prime.Button}"
+                                Command="{Binding OpenWindowsMemoryDiagnosticCommand}"
+                                ToolTip="Abre o Diagnóstico de Memória do Windows, que testa a RAM após reiniciar, fora do sistema operacional" />
+                    </StackPanel>
+
+                    <StackPanel Margin="0,16,0,0" Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}">
+                        <ProgressBar Value="{Binding Progress, Mode=OneWay}" Maximum="100" Height="6" />
+                        <WrapPanel Margin="0,10,0,0">
+                            <StackPanel Margin="0,0,28,6"><TextBlock Text="Etapa" Style="{StaticResource Prime.Caption}" />
+                                <TextBlock Style="{StaticResource Prime.Body}" FontWeight="SemiBold"><Run Text="{Binding PassText, Mode=OneWay}" /><Run Text=" · " /><Run Text="{Binding PhaseText, Mode=OneWay}" /></TextBlock></StackPanel>
+                            <StackPanel Margin="0,0,28,6"><TextBlock Text="Padrão" Style="{StaticResource Prime.Caption}" />
+                                <TextBlock Text="{Binding PatternText}" Style="{StaticResource Prime.Body}" FontWeight="SemiBold" /></StackPanel>
+                            <StackPanel Margin="0,0,28,6"><TextBlock Text="Tempo" Style="{StaticResource Prime.Caption}" />
+                                <TextBlock Text="{Binding ElapsedText}" Style="{StaticResource Prime.Body}" FontWeight="SemiBold" /></StackPanel>
+                            <StackPanel Margin="0,0,28,6"><TextBlock Text="Processado" Style="{StaticResource Prime.Caption}" />
+                                <TextBlock Text="{Binding ProcessedText}" Style="{StaticResource Prime.Body}" FontWeight="SemiBold" /></StackPanel>
+                            <StackPanel Margin="0,0,28,6"><TextBlock Text="Velocidade" Style="{StaticResource Prime.Caption}" />
+                                <TextBlock Text="{Binding SpeedText}" Style="{StaticResource Prime.Body}" FontWeight="SemiBold" /></StackPanel>
+                            <StackPanel Margin="0,0,28,6"><TextBlock Text="Erros" Style="{StaticResource Prime.Caption}" />
+                                <TextBlock Text="{Binding ErrorCount}" Style="{StaticResource Prime.Body}" FontWeight="SemiBold" /></StackPanel>
+                        </WrapPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Resultado -->
+            <Border Style="{StaticResource Prime.Card}" Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel>
+                    <TextBlock Text="Último resultado" Style="{StaticResource Prime.H2}" />
+                    <TextBlock Text="{Binding ResultText}" Tag="{Binding ResultState}" Style="{StaticResource Prime.StateValue}"
+                               FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Text="{Binding ResultDetail}" Style="{StaticResource Prime.Secondary}" Margin="0,4,0,10" />
+                    <ItemsControl ItemsSource="{Binding Notes}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,2">
+                                    <TextBlock Text="•" Foreground="{DynamicResource Prime.TextSecondary}" Margin="0,0,8,0" />
+                                    <TextBlock Text="{Binding}" Style="{StaticResource Prime.Body}" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <StackPanel Visibility="{Binding Errors.Count, Converter={StaticResource NotEmptyToVisibility}}" Margin="0,10,0,0">
+                        <TextBlock Text="Erros encontrados" Style="{StaticResource Prime.H3}" />
+                        <DataGrid ItemsSource="{Binding Errors}" Style="{StaticResource Prime.DataGrid}" MaxHeight="320">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Hora" Binding="{Binding Time}" Width="Auto" />
+                                <DataGridTextColumn Header="Passagem" Binding="{Binding Pass}" Width="Auto" />
+                                <DataGridTextColumn Header="Padrão" Binding="{Binding Pattern}" Width="*" />
+                                <DataGridTextColumn Header="Deslocamento" Binding="{Binding Offset}" Width="Auto" />
+                                <DataGridTextColumn Header="Esperado" Binding="{Binding Expected}" Width="Auto" FontFamily="Consolas" />
+                                <DataGridTextColumn Header="Lido" Binding="{Binding Actual}" Width="Auto" FontFamily="Consolas" />
+                                <DataGridTextColumn Header="Bits diferentes" Binding="{Binding Bits}" Width="Auto" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Teste de VRAM: módulo independente (PrimePC.GpuTesting) -->
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Teste de VRAM (memória da placa de vídeo)" Style="{StaticResource Prime.H2}" />
+                    <TextBlock Style="{StaticResource Prime.Secondary}" Margin="0,0,0,6"
+                               Text="Módulo separado do teste de RAM. Aloca blocos de 256 MB na placa de vídeo, grava 8 padrões (zeros, uns, xadrez, endereço próprio e invertido, aleatórios) e verifica tudo na própria GPU, registrando endereço, valor esperado e valor lido de cada divergência." />
+                    <TextBlock Text="{Binding Vram.DeviceMessage}" Style="{StaticResource Prime.Secondary}" Foreground="{DynamicResource Prime.Warn}"
+                               Visibility="{Binding Vram.DeviceMessage, Converter={StaticResource NotNullToVisibility}}" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding Vram.MemoryText}" Style="{StaticResource Prime.Secondary}" Margin="0,0,0,12" />
+                    <StackPanel IsEnabled="{Binding Vram.IsIdle}">
+                        <WrapPanel>
+                            <StackPanel Margin="0,0,18,10">
+                                <TextBlock Text="Placa de vídeo" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                                <ComboBox Width="300" ItemsSource="{Binding Vram.Devices}" SelectedItem="{Binding Vram.SelectedDevice}" DisplayMemberPath="Name" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,18,10">
+                                <TextBlock Text="Passagens" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                                <ComboBox Width="100" ItemsSource="{Binding Vram.PassOptions}" SelectedItem="{Binding Vram.Passes}" />
+                            </StackPanel>
+                        </WrapPanel>
+                        <TextBlock Style="{StaticResource Prime.H3}">
+                            <Run Text="Quantidade de VRAM: " /><Run Text="{Binding Vram.AmountText, Mode=OneWay}" Foreground="{DynamicResource Prime.Accent}" />
+                        </TextBlock>
+                        <DockPanel Margin="0,0,0,12">
+                            <Button DockPanel.Dock="Right" Content="Usar o máximo seguro" Style="{StaticResource Prime.Button}" Margin="12,0,0,0"
+                                    Command="{Binding Vram.UseMaximumCommand}" />
+                            <Slider Minimum="{Binding Vram.MinMb}" Maximum="{Binding Vram.MaxMb}" Value="{Binding Vram.AmountMb}" TickFrequency="256"
+                                    IsSnapToTickEnabled="True" SmallChange="256" LargeChange="1024" VerticalAlignment="Center"
+                                    AutomationProperties.Name="Quantidade de VRAM a testar" />
+                        </DockPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Iniciar teste de VRAM" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding Vram.StartCommand}" Margin="0,0,10,0" />
+                        <Button Content="Cancelar" Style="{StaticResource Prime.Button}" Command="{Binding Vram.CancelCommand}" />
+                    </StackPanel>
+
+                    <StackPanel Margin="0,14,0,0" Visibility="{Binding Vram.IsRunning, Converter={StaticResource BoolToVisibility}}">
+                        <ProgressBar Value="{Binding Vram.Progress, Mode=OneWay}" Maximum="100" Height="6" />
+                        <TextBlock Style="{StaticResource Prime.Secondary}" Margin="0,8,0,0">
+                            <Run Text="{Binding Vram.StatusText, Mode=OneWay}" /><Run Text=" · erros: " /><Run Text="{Binding Vram.ErrorCount, Mode=OneWay}" FontWeight="SemiBold" />
+                        </TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,14,0,0" Visibility="{Binding Vram.HasResult, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="Último resultado" Style="{StaticResource Prime.H3}" />
+                        <TextBlock Text="{Binding Vram.ResultText}" Tag="{Binding Vram.ResultState}" Style="{StaticResource Prime.StateValue}"
+                                   FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Vram.ResultDetail}" Style="{StaticResource Prime.Secondary}" Margin="0,4,0,6" />
+                        <ItemsControl ItemsSource="{Binding Vram.Notes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="0,2">
+                                        <TextBlock Text="•" Foreground="{DynamicResource Prime.TextSecondary}" Margin="0,0,8,0" />
+                                        <TextBlock Text="{Binding}" Style="{StaticResource Prime.Body}" />
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <DataGrid ItemsSource="{Binding Vram.Errors}" Style="{StaticResource Prime.DataGrid}" MaxHeight="300" Margin="0,8,0,0"
+                                  Visibility="{Binding Vram.Errors.Count, Converter={StaticResource NotEmptyToVisibility}}">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Passagem" Binding="{Binding Pass}" Width="Auto" />
+                                <DataGridTextColumn Header="Padrão" Binding="{Binding Pattern}" Width="*" />
+                                <DataGridTextColumn Header="Deslocamento" Binding="{Binding Offset}" Width="Auto" />
+                                <DataGridTextColumn Header="Esperado" Binding="{Binding Expected}" Width="Auto" FontFamily="Consolas" />
+                                <DataGridTextColumn Header="Lido" Binding="{Binding Actual}" Width="Auto" FontFamily="Consolas" />
+                                <DataGridTextColumn Header="Bits diferentes" Binding="{Binding Bits}" Width="Auto" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

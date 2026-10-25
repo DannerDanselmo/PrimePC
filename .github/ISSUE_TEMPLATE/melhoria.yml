@@ -1,0 +1,27 @@
+name: Sugerir uma melhoria
+description: Uma ideia de recurso, sensor, tela ou mudança.
+labels: [melhoria]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Qual problema isso resolve?
+      placeholder: "Quero ver ... porque ..."
+    validations:
+      required: true
+  - type: textarea
+    id: proposta
+    attributes:
+      label: Como você imagina que funcione
+    validations:
+      required: true
+  - type: textarea
+    id: alternativas
+    attributes:
+      label: Alternativas ou exemplos de outros programas (opcional)
+  - type: checkboxes
+    id: contribuir
+    attributes:
+      label: Contribuição
+      options:
+        - label: Quero implementar isso e abrir um pull request.

@@ -1,0 +1,125 @@
+<UserControl x:Class="PrimePC.App.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,4,32,28">
+
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Aparência e atualização" Style="{StaticResource Prime.H2}" />
+                    <WrapPanel>
+                        <StackPanel Margin="0,0,20,10">
+                            <TextBlock Text="Tema" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <ComboBox Width="190" ItemsSource="{Binding ThemeOptions}" SelectedItem="{Binding SelectedTheme}" DisplayMemberPath="Label" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,20,10">
+                            <TextBlock Text="Intervalo de leitura" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <ComboBox Width="160" ItemsSource="{Binding IntervalOptions}" SelectedItem="{Binding SelectedInterval}" DisplayMemberPath="Label" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,20,10">
+                            <TextBlock Text="Histórico dos gráficos" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <ComboBox Width="160" ItemsSource="{Binding HistoryOptions}" SelectedItem="{Binding SelectedHistory}" DisplayMemberPath="Label" />
+                        </StackPanel>
+                        <StackPanel Margin="0,0,20,10">
+                            <TextBlock Text="Unidade de temperatura" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                            <ComboBox Width="170" ItemsSource="{Binding TemperatureOptions}" SelectedItem="{Binding SelectedTemperatureUnit}" DisplayMemberPath="Label" />
+                        </StackPanel>
+                    </WrapPanel>
+                    <TextBlock Style="{StaticResource Prime.Caption}" TextWrapping="Wrap"
+                               Text="Intervalos curtos deixam os gráficos mais detalhados, mas aumentam um pouco o uso de CPU do próprio PrimePC." />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Inicialização e ícone perto do relógio" Style="{StaticResource Prime.H2}" />
+                    <CheckBox Content="Iniciar com o Windows (abre direto perto do relógio, como administrador)" IsChecked="{Binding StartWithWindows}" Margin="0,0,0,6" />
+                    <CheckBox Content="Ao fechar a janela, manter o PrimePC rodando perto do relógio" IsChecked="{Binding CloseToTray}" Margin="0,0,0,8" />
+                    <TextBlock Text="{Binding StartupStatus}" Tag="{Binding StartupState}" Style="{StaticResource Prime.StateValue}" FontSize="13" TextWrapping="Wrap" />
+                    <TextBlock Style="{StaticResource Prime.Caption}" TextWrapping="Wrap" Margin="0,6,0,0"
+                               Text="Rodando perto do relógio, a sobreposição, o benchmark (atalho), as sessões de jogo e o painel no celular continuam funcionando. Clique no ícone para abrir; para sair de verdade, use &quot;Sair do PrimePC&quot; no menu do ícone. Iniciar com o Windows usa uma tarefa agendada (o Windows não abre programas como administrador pela inicialização comum) e é removida ao desmarcar ou desinstalar." />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Alertas" Style="{StaticResource Prime.H2}" />
+                    <CheckBox Content="Alertar quando um sensor ficar em estado crítico por alguns segundos" IsChecked="{Binding AlertOnCritical}" Margin="0,0,0,6" />
+                    <CheckBox Content="Tocar som ao disparar um alerta" IsChecked="{Binding AlertSound}" Margin="0,0,0,12" />
+                    <TextBlock Text="Regras personalizadas" Style="{StaticResource Prime.H3}" />
+                    <TextBlock Text="Nenhuma regra. Para criar, selecione um sensor na aba Sensores e use &quot;Criar alerta&quot;."
+                               Style="{StaticResource Prime.Secondary}" Visibility="{Binding Rules.Count, Converter={StaticResource EmptyToVisibility}}" />
+                    <ItemsControl ItemsSource="{Binding Rules}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{DynamicResource Prime.CardBorder}" BorderThickness="0,0,0,1" Padding="0,8">
+                                    <DockPanel>
+                                        <CheckBox DockPanel.Dock="Left" IsChecked="{Binding Enabled}" VerticalAlignment="Center" Margin="0,0,10,0" ToolTip="Ativar/desativar" />
+                                        <Button DockPanel.Dock="Right" Content="&#xE74D;" Style="{StaticResource Prime.IconButton}" ToolTip="Remover regra"
+                                                Command="{Binding DataContext.RemoveRuleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}" />
+                                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Margin="10,0">
+                                            <ComboBox Width="110" ItemsSource="{Binding DataContext.ComparisonOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      SelectedIndex="{Binding ComparisonIndex}" Margin="0,0,6,0" />
+                                            <TextBox Width="70" Text="{Binding Threshold, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,4,0" />
+                                            <TextBlock Text="{Binding Unit}" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                                            <TextBlock Text="por" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" Margin="0,0,6,0" />
+                                            <TextBox Width="50" Text="{Binding Duration, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,4,0" />
+                                            <TextBlock Text="s" Style="{StaticResource Prime.Secondary}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding Sensor}" Style="{StaticResource Prime.Body}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Style="{StaticResource Prime.Caption}" Margin="0,8,0,0" TextWrapping="Wrap"
+                               Text="Temperaturas das regras são armazenadas em °C. Um alerta dispara uma vez quando a condição dura o tempo mínimo e é rearmado quando ela deixa de valer." />
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Dados e privacidade" Style="{StaticResource Prime.H2}" />
+                    <TextBlock Style="{StaticResource Prime.Body}" Margin="0,0,0,8"
+                               Text="Todo o histórico fica neste computador. O PrimePC só usa a rede quando você pede: procurar e baixar drivers, o ping da sobreposição e o painel no celular (só na rede local, com código de acesso)." />
+                    <TextBlock Style="{StaticResource Prime.Secondary}" Margin="0,0,0,10">
+                        <Run Text="Pasta de dados: " /><Run Text="{Binding DataFolder, Mode=OneWay}" />
+                    </TextBlock>
+                    <WrapPanel>
+                        <Button Content="Abrir pasta de dados" Style="{StaticResource Prime.Button}" Command="{Binding OpenDataFolderCommand}" Margin="0,0,8,8" />
+                        <Button Content="Exportar dados (ZIP)" Style="{StaticResource Prime.Button}" Command="{Binding ExportDataCommand}" Margin="0,0,8,8" />
+                        <Button Content="Abrir log técnico" Style="{StaticResource Prime.Button}" Command="{Binding OpenLogCommand}" Margin="0,0,8,8" />
+                        <Button Content="Apagar histórico…" Style="{StaticResource Prime.Button}" Command="{Binding DeleteHistoryCommand}" Margin="0,0,8,8"
+                                Foreground="{DynamicResource Prime.Crit}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Compatibilidade e limitações" Style="{StaticResource Prime.H2}" />
+                    <TextBlock Text="{Binding AccessText}" Style="{StaticResource Prime.Body}" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding SensorSummary}" Style="{StaticResource Prime.Secondary}" Margin="0,0,0,10" />
+                    <ItemsControl ItemsSource="{Binding Limitations}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <DockPanel Margin="0,2">
+                                    <TextBlock Text="•" Foreground="{DynamicResource Prime.TextSecondary}" Margin="0,0,8,0" />
+                                    <TextBlock Text="{Binding}" Style="{StaticResource Prime.Body}" />
+                                </DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <TextBlock Style="{StaticResource Prime.Secondary}" Margin="0,10,0,10" TextWrapping="Wrap"
+                               Text="Sensores dependem do fabricante, do firmware, dos drivers e das permissões. Leituras que o hardware não fornece aparecem como &quot;Não disponível&quot; — nunca são estimadas ou inventadas. Sensores de baixo nível (CPU, placa-mãe, SPD da RAM) usam o driver PawnIO, que é assinado, de código aberto e instalado separadamente pelo usuário; o PrimePC nunca instala drivers sozinho." />
+                    <Button Content="Site oficial do PawnIO" Style="{StaticResource Prime.Button}" Command="{Binding OpenPawnIoSiteCommand}" HorizontalAlignment="Left" />
+                    <TextBlock Style="{StaticResource Prime.Caption}" Margin="0,14,0,0">
+                        <Run Text="PrimePC versão " /><Run Text="{Binding Version, Mode=OneWay}" /><Run
+                            Text=" · sensores via LibreHardwareMonitor (MPL 2.0) · testes de GPU via ComputeSharp (MIT) · PDF via PDFsharp/MigraDoc (MIT)" />
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

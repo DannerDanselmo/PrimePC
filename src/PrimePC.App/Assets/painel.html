@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08080a">
+<title>PrimePC</title>
+<style>
+  :root { --bg:#08080a; --card:#121216; --line:#2b1e22; --text:#f5f5f7; --muted:#a2a2ae; --red:#ff2340; --orange:#ff7a18; --warn:#ffc233; --crit:#ff3d8b; --ok:#2ee57d; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:repeating-linear-gradient(-45deg, rgba(255,255,255,.035) 0 1px, transparent 1px 10px), radial-gradient(120% 60% at 100% 0%, #3a0a14 0%, transparent 60%), radial-gradient(120% 60% at 0% 100%, #2a1206 0%, transparent 55%), var(--bg);
+         color:var(--text); font:15px/1.35 "Bahnschrift","Segoe UI",system-ui,sans-serif; padding:16px 16px calc(24px + env(safe-area-inset-bottom)); min-height:100vh; }
+  header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .logo { font-size:24px; font-weight:800; font-style:italic; letter-spacing:.5px; font-stretch:condensed; text-transform:uppercase; }
+  .logo b { background:linear-gradient(90deg,var(--red),var(--orange)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .pill { font-size:12px; padding:4px 10px; border-radius:2px; text-transform:uppercase; font-weight:700; border:1px solid var(--line); color:var(--muted); }
+  .pill.live { color:var(--ok); border-color:#1d5c46; }
+  .pill.off { color:var(--crit); border-color:#5c1d2b; }
+  .grid { display:grid; grid-template-columns:1fr; gap:12px; max-width:900px; margin:0 auto; }
+  @media (min-width:640px) { .grid { grid-template-columns:1fr 1fr; } .wide { grid-column:1 / -1; } }
+  .card { background:linear-gradient(var(--card),var(--card)) padding-box, linear-gradient(135deg,#ff2340cc 0%,#ff234040 12%,#26262d 40%,#1c1c22 100%) border-box;
+          border:1px solid transparent; border-radius:4px; padding:14px 16px; }
+  .title { display:flex; justify-content:space-between; align-items:baseline; color:var(--muted); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin-bottom:8px; }
+  .title span:last-child { text-transform:none; letter-spacing:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:65%; }
+  .big { font-size:50px; font-weight:800; font-style:italic; line-height:1; color:var(--red); text-shadow:0 0 20px #ff234080; }
+  .row { display:flex; flex-wrap:wrap; gap:18px; margin-top:10px; }
+  .kv small { display:block; color:var(--muted); font-size:12px; }
+  .kv strong { font-size:20px; font-variant-numeric:tabular-nums; }
+  .bar { height:8px; border-radius:1px; background:#1c1c22; transform:skewX(-20deg); overflow:hidden; margin-top:8px; }
+  .bar i { display:block; height:100%; width:0; background:linear-gradient(90deg,var(--red),var(--orange)); transition:width .4s; }
+  .Warning { color:var(--warn) !important; } .Critical { color:var(--crit) !important; }
+  .muted { color:var(--muted); font-size:13px; }
+  footer { text-align:center; color:var(--muted); font-size:12px; margin-top:18px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Prime<b>PC</b></div>
+  <div id="status" class="pill">conectando…</div>
+</header>
+<div class="grid">
+  <section class="card wide">
+    <div class="title"><span>Jogo</span><span id="game">nenhum jogo em primeiro plano</span></div>
+    <div class="row" style="margin-top:0;align-items:flex-end">
+      <div><div class="big" id="fps">—</div><div class="muted">FPS</div></div>
+      <div class="kv"><small>Tempo de quadro</small><strong id="ft">—</strong></div>
+      <div class="kv"><small>1% low</small><strong id="low1">—</strong></div>
+      <div class="kv"><small id="pingLabel">Ping</small><strong id="ping">—</strong></div>
+    </div>
+  </section>
+  <section class="card">
+    <div class="title"><span>CPU</span><span id="cpuName"></span></div>
+    <div class="row" style="margin-top:0">
+      <div class="kv"><small>Uso</small><strong id="cpuLoad">—</strong></div>
+      <div class="kv"><small>Temperatura</small><strong id="cpuTemp">—</strong></div>
+      <div class="kv"><small>Potência</small><strong id="cpuPower">—</strong></div>
+      <div class="kv"><small>Clock</small><strong id="cpuClock">—</strong></div>
+    </div>
+    <div class="bar"><i id="cpuBar"></i></div>
+  </section>
+  <section class="card">
+    <div class="title"><span>GPU</span><span id="gpuName"></span></div>
+    <div class="row" style="margin-top:0">
+      <div class="kv"><small>Uso</small><strong id="gpuLoad">—</strong></div>
+      <div class="kv"><small>Temperatura</small><strong id="gpuTemp">—</strong></div>
+      <div class="kv"><small>Hot spot</small><strong id="gpuHot">—</strong></div>
+      <div class="kv"><small>Potência</small><strong id="gpuPower">—</strong></div>
+      <div class="kv"><small>Clock</small><strong id="gpuClock">—</strong></div>
+      <div class="kv"><small>Ventoinha</small><strong id="gpuFan">—</strong></div>
+    </div>
+    <div class="bar"><i id="gpuBar"></i></div>
+  </section>
+  <section class="card">
+    <div class="title"><span>VRAM</span><span id="vramText">—</span></div>
+    <div class="bar"><i id="vramBar"></i></div>
+  </section>
+  <section class="card">
+    <div class="title"><span>RAM</span><span id="ramText">—</span></div>
+    <div class="bar"><i id="ramBar"></i></div>
+  </section>
+</div>
+<footer>Somente leitura · atualiza a cada segundo · <span id="time"></span></footer>
+<script>
+  const k = new URLSearchParams(location.search).get('k') || '';
+  const $ = id => document.getElementById(id);
+  const n = (v, d = 0) => v == null ? '—' : Number(v).toLocaleString('pt-BR', { minimumFractionDigits: d, maximumFractionDigits: d });
+  let unit = 'C';
+  const temp = v => v == null ? '—' : (unit === 'F' ? n(v * 9 / 5 + 32) + ' °F' : n(v) + ' °C');
+  const set = (id, text, state) => { const e = $(id); e.textContent = text; e.className = state || ''; };
+  const bar = (id, pct) => { $(id).style.width = Math.max(0, Math.min(100, pct || 0)) + '%'; };
+  async function tick() {
+    try {
+      const r = await fetch('/api?k=' + encodeURIComponent(k), { cache: 'no-store' });
+      if (!r.ok) throw new Error(r.status);
+      const d = await r.json();
+      unit = d.unit;
+      $('status').textContent = 'ao vivo'; $('status').className = 'pill live';
+      $('time').textContent = d.time;
+      $('game').textContent = d.game.name || (d.game.measuring ? 'nenhum jogo em primeiro plano' : 'FPS exige o PrimePC como administrador');
+      set('fps', n(d.game.fps)); set('ft', d.game.frameTime == null ? '—' : n(d.game.frameTime, 1) + ' ms'); set('low1', n(d.game.low1));
+      $('pingLabel').textContent = d.ping && d.ping.target === 'internet' ? 'Rede' : 'Ping';
+      set('ping', d.ping && d.ping.ms != null ? d.ping.ms + ' ms' : '—');
+      $('cpuName').textContent = d.cpu.name || '';
+      set('cpuLoad', d.cpu.load == null ? '—' : n(d.cpu.load) + ' %'); set('cpuTemp', temp(d.cpu.temp), d.cpu.tempState);
+      set('cpuPower', d.cpu.power == null ? '—' : n(d.cpu.power) + ' W'); set('cpuClock', d.cpu.clock == null ? '—' : n(d.cpu.clock) + ' MHz');
+      bar('cpuBar', d.cpu.load);
+      $('gpuName').textContent = d.gpu.name || '';
+      set('gpuLoad', d.gpu.load == null ? '—' : n(d.gpu.load) + ' %'); set('gpuTemp', temp(d.gpu.temp), d.gpu.tempState); set('gpuHot', temp(d.gpu.hotSpot));
+      set('gpuPower', d.gpu.power == null ? '—' : n(d.gpu.power) + ' W'); set('gpuClock', d.gpu.clock == null ? '—' : n(d.gpu.clock) + ' MHz');
+      set('gpuFan', d.gpu.fan == null ? '—' : n(d.gpu.fan) + ' RPM');
+      bar('gpuBar', d.gpu.load);
+      $('vramText').textContent = d.gpu.vramUsed == null ? '—' : n(d.gpu.vramUsed / 1024, 1) + (d.gpu.vramTotal ? ' de ' + n(d.gpu.vramTotal / 1024, 1) : '') + ' GB';
+      bar('vramBar', d.gpu.vramTotal ? d.gpu.vramUsed / d.gpu.vramTotal * 100 : 0);
+      $('ramText').textContent = d.ram.load == null ? '—' : n(d.ram.load) + ' %' + (d.ram.used != null ? ' · ' + n(d.ram.used, 1) + ' GB' : '');
+      bar('ramBar', d.ram.load);
+    } catch (e) {
+      $('status').textContent = 'sem conexão'; $('status').className = 'pill off';
+    }
+  }
+  tick(); setInterval(tick, 1000);
+</script>
+</body>
+</html>

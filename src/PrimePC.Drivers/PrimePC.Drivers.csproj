@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Módulo de drivers: inventário, dispositivos com problema, atualizações (Windows Update e NVIDIA), download e instalação a pedido do usuário -->
+  <ItemGroup>
+    <PackageReference Include="System.Management" Version="10.0.13" />
+  </ItemGroup>
+</Project>

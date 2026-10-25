@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Módulo independente de testes da placa de vídeo: carga de computação (estabilidade) e teste de VRAM.
+       Usa DirectX 12 via ComputeSharp; os shaders são gerados a partir de C# durante a compilação. -->
+  <PropertyGroup>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="ComputeSharp" Version="3.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PrimePC.Sensors\PrimePC.Sensors.csproj" />
+  </ItemGroup>
+</Project>

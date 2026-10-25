@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PrimePC.App/PrimePC.App.csproj" />
+    <Project Path="src/PrimePC.Diagnostics/PrimePC.Diagnostics.csproj" />
+    <Project Path="src/PrimePC.Drivers/PrimePC.Drivers.csproj" />
+    <Project Path="src/PrimePC.Gaming/PrimePC.Gaming.csproj" />
+    <Project Path="src/PrimePC.GpuTesting/PrimePC.GpuTesting.csproj" />
+    <Project Path="src/PrimePC.Reports/PrimePC.Reports.csproj" />
+    <Project Path="src/PrimePC.Sensors/PrimePC.Sensors.csproj" />
+    <Project Path="src/PrimePC.Testing/PrimePC.Testing.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PrimePC.Tests/PrimePC.Tests.csproj" />
+  </Folder>
+</Solution>

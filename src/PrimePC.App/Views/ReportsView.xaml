@@ -1,0 +1,75 @@
+<UserControl x:Class="PrimePC.App.Views.ReportsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="32,4,32,28">
+
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <TextBlock Text="Conteúdo do relatório" Style="{StaticResource Prime.H2}" />
+                    <TextBlock Text="{Binding SessionText}" Style="{StaticResource Prime.Secondary}" Margin="0,0,0,4" />
+                    <TextBlock Text="{Binding AvailableText}" Style="{StaticResource Prime.Secondary}" Margin="0,0,0,12" />
+                    <WrapPanel>
+                        <CheckBox Content="Especificações do computador" IsChecked="{Binding IncludeInventory}" Margin="0,0,22,8" />
+                        <CheckBox Content="Sensores (mín./média/máx.)" IsChecked="{Binding IncludeSensors}" Margin="0,0,22,8" />
+                        <CheckBox Content="Alertas disparados" IsChecked="{Binding IncludeAlerts}" Margin="0,0,22,8" />
+                        <CheckBox Content="Testes de RAM e VRAM" IsChecked="{Binding IncludeRamTest}" Margin="0,0,22,8" />
+                        <CheckBox Content="Estabilidade (CPU/GPU) e benchmarks" IsChecked="{Binding IncludeStability}" Margin="0,0,22,8" />
+                        <CheckBox Content="Armazenamento" IsChecked="{Binding IncludeStorage}" Margin="0,0,22,8" />
+                        <CheckBox Content="Análise de gargalo" IsChecked="{Binding IncludeBottleneck}" Margin="0,0,22,8" />
+                        <CheckBox Content="Drivers" IsChecked="{Binding IncludeDrivers}" Margin="0,0,22,8" />
+                    </WrapPanel>
+                    <StackPanel Margin="0,4,0,10" Visibility="{Binding IncludeBottleneck, Converter={StaticResource BoolToVisibility}}">
+                        <TextBlock Text="Sessão de gargalo a incluir" Style="{StaticResource Prime.Caption}" Margin="0,0,0,3" />
+                        <ComboBox Width="460" HorizontalAlignment="Left" ItemsSource="{Binding SessionChoices}" SelectedItem="{Binding SelectedSession}"
+                                  DisplayMemberPath="Name" />
+                    </StackPanel>
+                    <CheckBox IsChecked="{Binding IncludeIdentifiers}" Margin="0,4,0,0">
+                        <TextBlock TextWrapping="Wrap">
+                            <Run Text="Incluir o nome do computador" /><Run Text=" (desativado por padrão; números de série e nome de usuário nunca são incluídos)"
+                                                                            Foreground="{DynamicResource Prime.TextSecondary}" />
+                        </TextBlock>
+                    </CheckBox>
+                    <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                        <Button Content="Exportar PDF" Style="{StaticResource Prime.PrimaryButton}" Command="{Binding ExportCommand}" CommandParameter="pdf" Margin="0,0,10,0" />
+                        <Button Content="Exportar CSV" Style="{StaticResource Prime.Button}" Command="{Binding ExportCommand}" CommandParameter="csv" Margin="0,0,10,0"
+                                ToolTip="Estatísticas dos sensores em planilha (Excel)" />
+                        <Button Content="Exportar JSON" Style="{StaticResource Prime.Button}" Command="{Binding ExportCommand}" CommandParameter="json" Margin="0,0,10,0"
+                                ToolTip="Relatório completo em formato estruturado" />
+                        <Button Content="Reiniciar sessão" Style="{StaticResource Prime.Button}" Command="{Binding ResetSessionCommand}" />
+                    </StackPanel>
+                    <Border Style="{StaticResource Prime.Banner}" Margin="0,14,0,0" Visibility="{Binding LastExport, Converter={StaticResource NotNullToVisibility}}">
+                        <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                                <Button Content="Abrir" Style="{StaticResource Prime.Button}" Command="{Binding OpenLastExportCommand}" Margin="8,0,8,0" MinWidth="0" />
+                                <Button Content="Mostrar na pasta" Style="{StaticResource Prime.Button}" Command="{Binding ShowLastExportInFolderCommand}" MinWidth="0" />
+                            </StackPanel>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Relatório exportado" FontWeight="SemiBold" Foreground="{DynamicResource Prime.Text}" />
+                                <TextBlock Text="{Binding LastExport}" Style="{StaticResource Prime.Secondary}" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Prime.Card}">
+                <StackPanel>
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="Limpar" Style="{StaticResource Prime.Button}" Command="{Binding ClearAlertsCommand}" />
+                        <TextBlock Text="Alertas disparados nesta execução" Style="{StaticResource Prime.H2}" />
+                    </DockPanel>
+                    <TextBlock Text="Nenhum alerta disparado. Configure alertas na aba Sensores (selecione um sensor) e gerencie-os em Configurações."
+                               Style="{StaticResource Prime.Secondary}" Visibility="{Binding Alerts.Count, Converter={StaticResource EmptyToVisibility}}" />
+                    <DataGrid ItemsSource="{Binding Alerts}" Style="{StaticResource Prime.DataGrid}" MaxHeight="360"
+                              Visibility="{Binding Alerts.Count, Converter={StaticResource NotEmptyToVisibility}}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Hora" Binding="{Binding Time}" Width="Auto" />
+                            <DataGridTextColumn Header="Alerta" Binding="{Binding Message}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
