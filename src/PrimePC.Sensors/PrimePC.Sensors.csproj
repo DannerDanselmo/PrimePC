@@ -2,6 +2,6 @@
   <!-- Coleta de sensores e identificação de hardware (camada de abstração de fontes) -->
   <ItemGroup>
     <PackageReference Include="LibreHardwareMonitorLib" Version="0.9.6" />
-    <PackageReference Include="System.Management" Version="10.0.13" />
+    <PackageReference Include="System.Management" Version="10.0.14" />
   </ItemGroup>
 </Project>

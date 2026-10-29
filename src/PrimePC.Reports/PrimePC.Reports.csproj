@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- Geração e exportação de relatórios (PDF, CSV, JSON) -->
   <ItemGroup>
-    <PackageReference Include="PDFsharp-MigraDoc" Version="6.2.4" />
+    <PackageReference Include="PDFsharp-MigraDoc" Version="6.5.0" />
     <!-- Substitui a versão 8.0.1 trazida pelo PDFsharp, que tem vulnerabilidades conhecidas -->
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\PrimePC.Sensors\PrimePC.Sensors.csproj" />
