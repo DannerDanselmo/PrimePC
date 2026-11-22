@@ -4,6 +4,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.Management" Version="11.0.0" />
     <ProjectReference Include="..\PrimePC.Sensors\PrimePC.Sensors.csproj" />
   </ItemGroup>
 </Project>
